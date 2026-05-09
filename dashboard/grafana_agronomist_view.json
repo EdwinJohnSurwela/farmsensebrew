@@ -1,0 +1,103 @@
+{
+  "__comment": "FarmSense Brew — Grafana Dashboard: Agronomist View",
+  "__instructions": [
+    "Import this JSON in Grafana Cloud: Dashboards → Import → Paste JSON",
+    "Set your MySQL data source as 'farmsense-mysql' before importing",
+    "Panels: Temperature map, Humidity trends, Soil moisture per node, CLR Risk gauge, Alert log"
+  ],
+  "title": "FarmSense Brew — Agronomist View",
+  "uid": "farmsense-agro-001",
+  "tags": ["farmsense", "agronomist", "iot"],
+  "timezone": "Asia/Manila",
+  "refresh": "5m",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Current CLR Risk — All Nodes",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "LOW": { "color": "green", "text": "LOW" } } },
+            { "type": "value", "options": { "MODERATE": { "color": "yellow", "text": "MODERATE" } } },
+            { "type": "value", "options": { "HIGH": { "color": "red", "text": "HIGH" } } }
+          ],
+          "thresholds": {
+            "steps": [
+              { "color": "green",  "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red",    "value": 2 }
+            ]
+          }
+        }
+      },
+      "targets": [{
+        "rawSql": "SELECT node_id AS metric, clr_risk AS value FROM sensor_readings WHERE recorded_at = (SELECT MAX(recorded_at) FROM sensor_readings sr2 WHERE sr2.node_id = sensor_readings.node_id) ORDER BY node_id",
+        "format": "table"
+      }]
+    },
+    {
+      "id": 2,
+      "title": "Temperature (°C) — All Nodes, Last 24h",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "targets": [{
+        "rawSql": "SELECT recorded_at AS time, temperature AS value, node_id AS metric FROM sensor_readings WHERE recorded_at >= NOW() - INTERVAL 24 HOUR ORDER BY recorded_at",
+        "format": "time_series"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "custom": { "lineWidth": 2 }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Humidity (%) — All Nodes, Last 24h",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+      "targets": [{
+        "rawSql": "SELECT recorded_at AS time, humidity AS value, node_id AS metric FROM sensor_readings WHERE recorded_at >= NOW() - INTERVAL 24 HOUR ORDER BY recorded_at",
+        "format": "time_series"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": { "lineWidth": 2 },
+          "thresholds": {
+            "steps": [
+              { "color": "green",  "value": null },
+              { "color": "yellow", "value": 70 },
+              { "color": "red",    "value": 80 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Soil Moisture (%) — All Nodes, Last 24h",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+      "targets": [{
+        "rawSql": "SELECT recorded_at AS time, soil_pct AS value, node_id AS metric FROM sensor_readings WHERE recorded_at >= NOW() - INTERVAL 24 HOUR ORDER BY recorded_at",
+        "format": "time_series"
+      }],
+      "fieldConfig": {
+        "defaults": { "unit": "percent" }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Recent CLR Alerts",
+      "type": "table",
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+      "targets": [{
+        "rawSql": "SELECT created_at AS Time, node_id AS Node, risk_level AS Risk, alert_message AS Message FROM clr_alerts ORDER BY created_at DESC LIMIT 20",
+        "format": "table"
+      }]
+    }
+  ]
+}
