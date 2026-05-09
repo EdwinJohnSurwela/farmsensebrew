@@ -1,0 +1,132 @@
+[
+  {
+    "id": "farmsense-flow-001",
+    "type": "tab",
+    "label": "FarmSense Brew — Main Pipeline",
+    "disabled": false,
+    "info": "Receives MQTT from all 5 ESP32 nodes → validates → stores to AWS DynamoDB + MySQL → triggers ML risk scoring → triggers Gemini recommendations on threshold breach"
+  },
+  {
+    "id": "mqtt-in-001",
+    "type": "mqtt in",
+    "z": "farmsense-flow-001",
+    "name": "MQTT: farmsense/sensors",
+    "topic": "farmsense/sensors",
+    "qos": "1",
+    "datatype": "json",
+    "broker": "mqtt-broker-001",
+    "x": 100,
+    "y": 100,
+    "wires": [["validate-001"]]
+  },
+  {
+    "id": "mqtt-broker-001",
+    "type": "mqtt-broker",
+    "name": "Local RPi Broker",
+    "broker": "localhost",
+    "port": "1883",
+    "clientid": "nodered-farmsense",
+    "autoConnect": true,
+    "usetls": false
+  },
+  {
+    "id": "validate-001",
+    "type": "function",
+    "z": "farmsense-flow-001",
+    "name": "Validate & Range Check",
+    "func": "/**\n * VALIDATION RULES:\n * Temperature: 10–40°C (reasonable farm range)\n * Humidity: 0–100%\n * Soil: 0–100%\n * All required fields must be present\n */\nconst d = msg.payload;\nconst errors = [];\n\nif (!d.node_id)               errors.push('missing node_id');\nif (!d.temperature && d.temperature !== 0) errors.push('missing temperature');\nif (!d.humidity && d.humidity !== 0)       errors.push('missing humidity');\nif (!d.soil_pct && d.soil_pct !== 0)       errors.push('missing soil_pct');\nif (d.temperature < 10 || d.temperature > 40) errors.push('temperature out of range');\nif (d.humidity < 0 || d.humidity > 100)       errors.push('humidity out of range');\nif (d.soil_pct < 0 || d.soil_pct > 100)       errors.push('soil_pct out of range');\n\nif (errors.length > 0) {\n  node.warn('Validation failed for ' + d.node_id + ': ' + errors.join(', '));\n  return null; // Drop invalid reading\n}\n\n// Add server-side timestamp\nmsg.payload.server_ts = new Date().toISOString();\nmsg.payload.valid = true;\n\nreturn msg;",
+    "x": 320,
+    "y": 100,
+    "wires": [["store-dynamo-001", "check-clr-threshold-001"]]
+  },
+  {
+    "id": "store-dynamo-001",
+    "type": "http request",
+    "z": "farmsense-flow-001",
+    "name": "POST → AWS DynamoDB (via Lambda/API Gateway)",
+    "method": "POST",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "https://YOUR_API_GATEWAY_URL/prod/sensor-data",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "authType": "bearer",
+    "x": 580,
+    "y": 60,
+    "wires": [["log-success-001"]]
+  },
+  {
+    "id": "check-clr-threshold-001",
+    "type": "function",
+    "z": "farmsense-flow-001",
+    "name": "Check CLR Risk Thresholds",
+    "func": "/**\n * CLR THRESHOLD RULES (from literature):\n * HIGH RISK:   humidity >= 80% AND temperature 21–25°C\n * MODERATE:    humidity 70–79% AND temperature 20–26°C\n * LOW:         everything else\n *\n * If HIGH or MODERATE → trigger ML model + Gemini\n */\nconst d = msg.payload;\nlet risk = 'LOW';\n\nif (d.humidity >= 80 && d.temperature >= 21 && d.temperature <= 25) {\n  risk = 'HIGH';\n} else if (d.humidity >= 70 && d.temperature >= 20 && d.temperature <= 26) {\n  risk = 'MODERATE';\n}\n\nmsg.payload.clr_risk_preliminary = risk;\n\nif (risk === 'HIGH' || risk === 'MODERATE') {\n  return [msg, null]; // Send to ML model\n} else {\n  return [null, msg]; // Skip ML, store only\n}",
+    "outputs": 2,
+    "x": 580,
+    "y": 140,
+    "wires": [["call-ml-model-001"], ["store-mysql-001"]]
+  },
+  {
+    "id": "call-ml-model-001",
+    "type": "http request",
+    "z": "farmsense-flow-001",
+    "name": "POST → ML Model (local Python Flask)",
+    "method": "POST",
+    "ret": "obj",
+    "url": "http://localhost:5000/predict",
+    "x": 820,
+    "y": 100,
+    "wires": [["call-gemini-001"]]
+  },
+  {
+    "id": "call-gemini-001",
+    "type": "http request",
+    "z": "farmsense-flow-001",
+    "name": "POST → Gemini API",
+    "method": "POST",
+    "ret": "obj",
+    "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=YOUR_GEMINI_API_KEY",
+    "x": 1060,
+    "y": 100,
+    "wires": [["store-mysql-001"]]
+  },
+  {
+    "id": "store-mysql-001",
+    "type": "function",
+    "z": "farmsense-flow-001",
+    "name": "Format → MySQL INSERT",
+    "func": "// Prepare MySQL insert payload\n// This connects to your mysql2 node or custom HTTP endpoint\nmsg.payload = {\n  query: 'INSERT INTO sensor_readings (node_id, position, temperature, humidity, soil_pct, clr_risk, recommendation, recorded_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',\n  params: [\n    msg.payload.node_id,\n    msg.payload.position,\n    msg.payload.temperature,\n    msg.payload.humidity,\n    msg.payload.soil_pct,\n    msg.payload.clr_risk_preliminary || 'LOW',\n    msg.payload.recommendation || null\n  ]\n};\nreturn msg;",
+    "x": 1060,
+    "y": 180,
+    "wires": [["mysql-node-001"]]
+  },
+  {
+    "id": "mysql-node-001",
+    "type": "mysql",
+    "z": "farmsense-flow-001",
+    "name": "MySQL: farmsense_db",
+    "mydbConfig": "mysql-config-001",
+    "x": 1260,
+    "y": 180,
+    "wires": [["log-success-001"]]
+  },
+  {
+    "id": "mysql-config-001",
+    "type": "MySQLdatabase",
+    "host": "YOUR_AWS_RDS_ENDPOINT",
+    "port": "3306",
+    "db": "farmsense_db",
+    "tz": "Asia/Manila"
+  },
+  {
+    "id": "log-success-001",
+    "type": "debug",
+    "z": "farmsense-flow-001",
+    "name": "Pipeline Log",
+    "active": true,
+    "tosidebar": true,
+    "x": 1400,
+    "y": 140
+  }
+]
