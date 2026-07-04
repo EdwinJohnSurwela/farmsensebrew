@@ -1,0 +1,403 @@
+{
+  "__comment": "FarmSense Brew — Grafana Dashboard: Farm Owner View",
+  "__instructions": [
+    "Import: Grafana → Dashboards → Import → Paste JSON",
+    "Set MySQL data source name to 'farmsense-mysql' before importing",
+    "Design reference: FIGMA MAKE_DASHBOARD/src/app/components/FarmOwnerDashboard.tsx"
+  ],
+  "title": "FarmSense Brew — Farm Owner Dashboard",
+  "uid": "farmsense-owner-001",
+  "tags": [
+    "farmsense",
+    "farm-owner",
+    "business"
+  ],
+  "timezone": "Asia/Manila",
+  "refresh": "1m",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Monthly Revenue (Liberica)",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 5
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT 81000 AS value",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyPHP",
+          "decimals": 0,
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/.*/"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Coffee Yield (50 sqm)",
+      "type": "stat",
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 5
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT 162 AS value",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "masskg",
+          "decimals": 0,
+          "thresholds": {
+            "steps": [
+              {
+                "color": "#78350f",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/.*/"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "CLR Risk Status",
+      "type": "gauge",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 5
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT AVG(CASE WHEN clr_risk='HIGH' THEN 75 WHEN clr_risk='MODERATE' THEN 50 ELSE 25 END) AS risk_score FROM sensor_readings WHERE recorded_at >= NOW() - INTERVAL 1 HOUR",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 35
+              },
+              {
+                "color": "orange",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 70
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "System Status — Active Irrigation Zones",
+      "type": "stat",
+      "gridPos": {
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 5
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT COUNT(DISTINCT sr.node_id) AS value FROM sensor_readings sr INNER JOIN (SELECT node_id, MAX(recorded_at) AS latest FROM sensor_readings GROUP BY node_id) l ON sr.node_id = l.node_id AND sr.recorded_at = l.latest WHERE sr.soil_pct < 35 AND sr.clr_risk != 'HIGH'",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/.*/"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Node Performance Summary — CLR Risk vs Soil Moisture",
+      "type": "barchart",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT sn.position AS 'Position', sr.confidence_pct AS 'CLR Risk %', sr.soil_pct AS 'Soil Moisture %' FROM sensor_readings sr INNER JOIN (SELECT node_id, MAX(recorded_at) AS latest FROM sensor_readings GROUP BY node_id) l ON sr.node_id = l.node_id AND sr.recorded_at = l.latest LEFT JOIN sensor_nodes sn ON sr.node_id = sn.node_id ORDER BY sr.node_id",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Environmental Trends (24h)",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 5,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT recorded_at AS time, ROUND(AVG(temperature),1) AS 'Temperature (°C)' FROM sensor_readings WHERE recorded_at >= NOW() - INTERVAL 24 HOUR GROUP BY FLOOR(UNIX_TIMESTAMP(recorded_at)/3600) ORDER BY time",
+          "format": "time_series"
+        },
+        {
+          "rawSql": "SELECT recorded_at AS time, ROUND(AVG(humidity),0) AS 'Humidity (%)' FROM sensor_readings WHERE recorded_at >= NOW() - INTERVAL 24 HOUR GROUP BY FLOOR(UNIX_TIMESTAMP(recorded_at)/3600) ORDER BY time",
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "🤖 AI-Powered Farm Management Recommendations (Google Gemini)",
+      "description": "Plain-language three-part recommendations generated by the Gemini API",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 13,
+        "w": 24,
+        "h": 9
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT r.generated_at AS 'Time', r.node_id AS 'Node', r.risk_level AS 'Risk', r.what_happened AS '📋 What is Happening', r.why_it_matters AS '⚠️ Why It Matters', r.what_to_do AS '✅ What To Do' FROM recommendations r ORDER BY r.generated_at DESC LIMIT 10",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "cellHeight": "lg",
+        "footer": {
+          "show": true
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "Pilot Plot Size",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT COUNT(*) * 10 AS value FROM sensor_nodes WHERE is_active = 1",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "areaM2",
+          "decimals": 0,
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/.*/"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "title": "Water Usage (MTD)",
+      "type": "stat",
+      "gridPos": {
+        "x": 6,
+        "y": 22,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT 2850 AS value",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "litre",
+          "decimals": 0,
+          "thresholds": {
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/.*/"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "High-Risk Zones (CLR ≥60%)",
+      "type": "stat",
+      "gridPos": {
+        "x": 12,
+        "y": 22,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT COUNT(DISTINCT sr.node_id) AS value FROM sensor_readings sr INNER JOIN (SELECT node_id, MAX(recorded_at) AS latest FROM sensor_readings GROUP BY node_id) l ON sr.node_id = l.node_id AND sr.recorded_at = l.latest WHERE sr.confidence_pct >= 60",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 11,
+      "title": "System Uptime",
+      "type": "stat",
+      "gridPos": {
+        "x": 18,
+        "y": 22,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT 99.8 AS value",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/.*/"
+        }
+      }
+    }
+  ]
+}

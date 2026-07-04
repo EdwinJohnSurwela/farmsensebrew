@@ -97,3 +97,9 @@ def predict(data: SensorInput):
 @app.post("/predict/batch")
 def predict_batch(readings: list[SensorInput]):
     return [predict(r) for r in readings]
+
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("ML_PORT", "5000"))
+    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=False)

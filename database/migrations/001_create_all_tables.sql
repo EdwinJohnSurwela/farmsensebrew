@@ -1,11 +1,11 @@
 -- ══════════════════════════════════════════════════════════════════
 -- FarmSense Brew — Database Schema
 -- File: database/migrations/001_create_all_tables.sql
--- Database: farmsense_db (MySQL 8.0+ / AWS RDS MySQL)
+-- Database: farmsense_db (MySQL 8.0+ / Local XAMPP or Raspberry Pi)
 --
 -- TEAM INSTRUCTIONS:
--- Run this in MySQL Workbench or via CLI:
---   mysql -h YOUR_RDS_ENDPOINT -u admin -p farmsense_db < 001_create_all_tables.sql
+-- Run this in MySQL Workbench, phpMyAdmin, or via CLI:
+--   mysql -u root -p farmsense_db < 001_create_all_tables.sql
 -- ══════════════════════════════════════════════════════════════════
 
 CREATE DATABASE IF NOT EXISTS farmsense_db
@@ -82,12 +82,12 @@ CREATE TABLE IF NOT EXISTS recommendations (
 ) ENGINE=InnoDB;
 
 -- ─── TABLE 5: USERS ───────────────────────────────────────────────────────────
--- Dashboard login accounts (2 roles: agronomist, farm_owner)
+-- Dashboard login accounts (4 roles: admin, agronomist, farm_owner, field_staff)
 CREATE TABLE IF NOT EXISTS users (
   id              INT AUTO_INCREMENT PRIMARY KEY,
   username        VARCHAR(50) NOT NULL UNIQUE,
   password_hash   VARCHAR(255) NOT NULL,           -- bcrypt hashed — NEVER store plain text
-  role            ENUM('agronomist', 'farm_owner') NOT NULL,
+  role            ENUM('admin', 'agronomist', 'farm_owner', 'field_staff') NOT NULL,
   full_name       VARCHAR(100),
   email           VARCHAR(100),
   last_login      DATETIME,

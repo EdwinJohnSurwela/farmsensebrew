@@ -9,7 +9,7 @@
 const mysql = require("mysql2/promise");
 
 const pool = mysql.createPool({
-  host:               process.env.DB_HOST,         // AWS RDS endpoint
+  host:               process.env.DB_HOST,         // Local MySQL (XAMPP / Raspberry Pi)
   port:               parseInt(process.env.DB_PORT) || 3306,
   user:               process.env.DB_USER,
   password:           process.env.DB_PASSWORD,
@@ -20,7 +20,7 @@ const pool = mysql.createPool({
   timezone:           "+08:00"                     // Philippine Standard Time
 });
 
-// Test connection on startup
+// Test connection on startup — warn but do NOT exit (allows starting before MySQL)
 pool.getConnection()
   .then(conn => {
     console.log("[DB] MySQL connected to:", process.env.DB_HOST);
@@ -28,7 +28,7 @@ pool.getConnection()
   })
   .catch(err => {
     console.error("[DB] MySQL connection failed:", err.message);
-    process.exit(1);
+    console.error("[DB] The server will keep running. Start MySQL (XAMPP) and queries will auto-reconnect.");
   });
 
 module.exports = pool;

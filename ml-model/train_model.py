@@ -91,7 +91,7 @@ model.fit(X_train_scaled, y_train)
 
 # ─── EVALUATE ─────────────────────────────────────────────────────────────────
 y_pred = model.predict(X_test_scaled)
-print("\n── Evaluation Report ──────────────────────────────────────")
+print("\n--- Evaluation Report ---")
 print(classification_report(y_test, y_pred, target_names=["LOW", "MODERATE", "HIGH"]))
 print("Confusion Matrix:")
 print(confusion_matrix(y_test, y_pred))

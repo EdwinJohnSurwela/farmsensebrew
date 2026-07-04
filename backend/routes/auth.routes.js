@@ -9,7 +9,26 @@ const express  = require("express");
 const bcrypt   = require("bcrypt");
 const jwt      = require("jsonwebtoken");
 const db       = require("../services/db.service");
+const { COOKIE_NAME } = require("../middleware/grafana-auth.middleware");
 const router   = express.Router();
+
+const COOKIE_MAX_AGE_MS = 8 * 60 * 60 * 1000; // match JWT expiry
+
+/** Secure cookies are rejected by browsers on plain http:// — opt in when behind HTTPS. */
+function sessionCookieAttrs() {
+  const secure = process.env.COOKIE_SECURE === "true";
+  return {
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: COOKIE_MAX_AGE_MS,
+    path: "/",
+    secure
+  };
+}
+
+function attachSessionCookie(res, token) {
+  res.cookie(COOKIE_NAME, token, sessionCookieAttrs());
+}
 
 // POST /api/auth/login
 router.post("/login", async (req, res) => {
@@ -48,6 +67,8 @@ router.post("/login", async (req, res) => {
       { expiresIn: "8h" }
     );
 
+    attachSessionCookie(res, token);
+
     res.json({
       message: "Login successful",
       token,
@@ -61,6 +82,13 @@ router.post("/login", async (req, res) => {
     console.error("[Auth] Login error:", err.message);
     res.status(500).json({ error: "Server error during login" });
   }
+});
+
+// POST /api/auth/logout — clear session cookie (JWT in body is ignored)
+router.post("/logout", (req, res) => {
+  const { maxAge, ...clearOpts } = sessionCookieAttrs();
+  res.clearCookie(COOKIE_NAME, clearOpts);
+  res.json({ message: "Logged out" });
 });
 
 module.exports = router;

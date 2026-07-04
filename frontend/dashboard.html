@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="FarmSense Brew — IoT Dashboard for Coffee Microclimate Monitoring, Automated Irrigation, and CLR Disease Prevention">
+  <title>FarmSense Brew — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+  <!-- ─── TOP NAV ─── -->
+  <nav id="topnav" class="topnav">
+    <div class="nav-left">
+      <span class="nav-logo">☕</span>
+      <span class="nav-brand">FarmSense <span class="accent">Brew</span></span>
+    </div>
+    <div class="nav-center">
+      <span id="nav-role-badge" class="role-badge"></span>
+    </div>
+    <div class="nav-right">
+      <span id="nav-clock" class="nav-clock"></span>
+      <span id="nav-user" class="nav-user"></span>
+      <a id="btn-grafana" class="btn-grafana" href="#" target="_self" title="Open in Grafana (if running)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          <polyline points="15 3 21 3 21 9" />
+          <line x1="10" y1="14" x2="21" y2="3" />
+        </svg>
+        Grafana
+      </a>
+      <button id="btn-logout" class="btn-logout" onclick="handleLogout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        Sign Out
+      </button>
+    </div>
+  </nav>
+
+  <!-- ─── MAIN CONTENT ─── -->
+  <main id="dashboard-main" class="dashboard-main">
+
+    <!-- ======= AGRONOMIST DASHBOARD ======= -->
+    <div id="view-agronomist" class="role-view" data-role="agronomist">
+
+      <!-- Row 1: CLR Risk Gauge + Per-Node CLR Status -->
+      <section class="section">
+        <div class="panel-row two-col">
+          <div class="panel">
+            <div class="panel-title">☕ CLR Risk Score — System Average</div>
+            <div class="panel-desc">Hemileia vastatrix infection probability (last 1h)</div>
+            <div class="gauge-wrap"><canvas id="agro-gauge-clr"></canvas></div>
+            <div id="agro-gauge-label" class="gauge-label">--</div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">Current CLR Risk Level — Per Node</div>
+            <div id="agro-node-risks" class="stat-row"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Row 2: KPI strip -->
+      <section class="section">
+        <div class="kpi-strip">
+          <div class="kpi" id="agro-kpi-temp"><div class="kpi-icon">🌡️</div><div class="kpi-body"><span class="kpi-value">--</span><span class="kpi-label">Avg Temperature</span><span class="kpi-sub">CLR optimal: 21–25°C</span></div></div>
+          <div class="kpi" id="agro-kpi-hum"><div class="kpi-icon">💧</div><div class="kpi-body"><span class="kpi-value">--</span><span class="kpi-label">Avg Humidity</span><span class="kpi-sub">Danger: ≥80%</span></div></div>
+          <div class="kpi" id="agro-kpi-soil"><div class="kpi-icon">🌱</div><div class="kpi-body"><span class="kpi-value">--</span><span class="kpi-label">Avg Soil Moisture</span><span class="kpi-sub">Irrigation: &lt;35%</span></div></div>
+          <div class="kpi" id="agro-kpi-irrig"><div class="kpi-icon">💦</div><div class="kpi-body"><span class="kpi-value">--</span><span class="kpi-label">Irrigating Nodes</span><span class="kpi-sub">soil&lt;35% & CLR≠HIGH</span></div></div>
+        </div>
+      </section>
+
+      <!-- Row 3: Node Status Table -->
+      <section class="section">
+        <div class="panel full">
+          <div class="panel-title">📡 ESP32 Node Status — All 5 Nodes (X Formation)</div>
+          <div class="table-wrap"><table id="agro-node-table" class="data-table"><thead><tr><th>Node</th><th>Position</th><th>Temp (°C)</th><th>Humidity (%)</th><th>Soil (%)</th><th>CLR Risk</th><th>ML Confidence</th><th>Irrigation</th><th>Last Update</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- Row 4: Charts (Trends + CLR/Soil) -->
+      <section class="section">
+        <div class="panel-row two-col">
+          <div class="panel"><div class="panel-title">📈 Environmental Trends (24h) — Temperature & Humidity</div><div class="chart-wrap"><canvas id="agro-chart-env"></canvas></div></div>
+          <div class="panel"><div class="panel-title">📊 CLR Risk & Soil Moisture (24h)</div><div class="chart-wrap"><canvas id="agro-chart-clr"></canvas></div></div>
+        </div>
+      </section>
+
+      <!-- Row 5: Risk Factor Analysis -->
+      <section class="section">
+        <div class="panel full">
+          <div class="panel-title">🔬 CLR Risk Factor Analysis</div>
+          <div class="panel-desc">Breakdown of environmental contributions to CLR risk</div>
+          <div id="agro-risk-bars" class="risk-bars"></div>
+        </div>
+      </section>
+
+      <!-- Row 6: Recent Alerts -->
+      <section class="section">
+        <div class="panel full">
+          <div class="panel-title">🚨 Recent CLR Alerts <span id="agro-alert-badge" class="inline-badge">0</span></div>
+          <div class="table-wrap"><table id="agro-alert-table" class="data-table"><thead><tr><th>Time</th><th>Node</th><th>Position</th><th>Risk</th><th>Conditions</th><th>Message</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- Row 7: Scale-Up (collapsible) -->
+      <section class="section">
+        <details class="panel full collapsible">
+          <summary class="panel-title clickable">📐 Scale-Up Management — Zone Registration & Monitoring</summary>
+          <div class="collapse-body">
+            <div class="kpi-strip" id="agro-scaleup-kpis"></div>
+            <div class="table-wrap"><table id="agro-scaleup-table" class="data-table"><thead><tr><th>Node ID</th><th>Position</th><th>Description</th><th>Area</th><th>Status</th><th>Date Added</th><th>GPS</th></tr></thead><tbody></tbody></table></div>
+            <div class="info-box">
+              <h4>🔧 Modular System Architecture</h4>
+              <p>FarmSense Brew's modular design allows independent monitoring of multiple 50 sqm zones. Each zone operates autonomously with its own ESP32 sensor network, irrigation control, data pipeline, and dashboard integration.</p>
+            </div>
+          </div>
+        </details>
+      </section>
+    </div>
+
+    <!-- ======= FARM OWNER DASHBOARD ======= -->
+    <div id="view-farm_owner" class="role-view" data-role="farm_owner">
+
+      <!-- Row 1: Business KPIs -->
+      <section class="section">
+        <div class="kpi-strip">
+          <div class="kpi kpi-revenue"><div class="kpi-icon">💰</div><div class="kpi-body"><span class="kpi-value" id="owner-revenue">--</span><span class="kpi-label">Monthly Revenue (Liberica)</span></div></div>
+          <div class="kpi kpi-yield"><div class="kpi-icon">🫘</div><div class="kpi-body"><span class="kpi-value" id="owner-yield">--</span><span class="kpi-label">Coffee Yield (50 sqm)</span></div></div>
+          <div class="kpi"><div class="kpi-icon">⚠️</div><div class="kpi-body"><div class="gauge-mini-wrap"><canvas id="owner-gauge-clr"></canvas></div><span class="kpi-label">CLR Risk Status</span></div></div>
+          <div class="kpi"><div class="kpi-icon">💧</div><div class="kpi-body"><span class="kpi-value" id="owner-irrig">--</span><span class="kpi-label">Active Irrigation Zones</span></div></div>
+        </div>
+      </section>
+
+      <!-- Row 2: Charts (Bar + Trends) -->
+      <section class="section">
+        <div class="panel-row two-col">
+          <div class="panel"><div class="panel-title">📊 Node Performance — CLR Risk vs Soil Moisture</div><div class="chart-wrap"><canvas id="owner-chart-bar"></canvas></div></div>
+          <div class="panel"><div class="panel-title">📈 Environmental Trends (24h)</div><div class="chart-wrap"><canvas id="owner-chart-env"></canvas></div></div>
+        </div>
+      </section>
+
+      <!-- Row 3: AI Recommendations -->
+      <section class="section">
+        <div class="panel full">
+          <div class="panel-title">🤖 AI-Powered Farm Management Recommendations (Google Gemini)</div>
+          <div class="panel-desc">Plain-language three-part recommendations generated by the Gemini API</div>
+          <div class="table-wrap"><table id="owner-rec-table" class="data-table"><thead><tr><th>Time</th><th>Node</th><th>Risk</th><th>📋 What is Happening</th><th>⚠️ Why It Matters</th><th>✅ What To Do</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- Row 4: Bottom KPIs -->
+      <section class="section">
+        <div class="kpi-strip">
+          <div class="kpi"><div class="kpi-icon">📏</div><div class="kpi-body"><span class="kpi-value" id="owner-plot">--</span><span class="kpi-label">Pilot Plot Size</span></div></div>
+          <div class="kpi"><div class="kpi-icon">🚰</div><div class="kpi-body"><span class="kpi-value" id="owner-water">--</span><span class="kpi-label">Water Usage (MTD)</span></div></div>
+          <div class="kpi"><div class="kpi-icon">🦠</div><div class="kpi-body"><span class="kpi-value" id="owner-highrisk">--</span><span class="kpi-label">High-Risk Zones (CLR≥60%)</span></div></div>
+          <div class="kpi"><div class="kpi-icon">⏱️</div><div class="kpi-body"><span class="kpi-value" id="owner-uptime">--</span><span class="kpi-label">System Uptime</span></div></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ======= FIELD STAFF DASHBOARD ======= -->
+    <div id="view-field_staff" class="role-view" data-role="field_staff">
+
+      <!-- Header Banner -->
+      <section class="section">
+        <div class="staff-banner">
+          <h2>📋 Field Staff Dashboard — FarmSense Brew</h2>
+          <p>Simple instructions for your work today. Follow the colors and actions below.</p>
+        </div>
+      </section>
+
+      <!-- Urgent Alert Banner -->
+      <section class="section">
+        <div id="staff-urgent" class="staff-urgent"></div>
+      </section>
+
+      <!-- Node Status Cards (X Formation layout) -->
+      <section class="section">
+        <div id="staff-node-grid" class="staff-node-grid"></div>
+      </section>
+
+      <!-- Action Instructions Table -->
+      <section class="section">
+        <div class="panel full">
+          <div class="panel-title">👷 Detailed Action Instructions per Zone</div>
+          <div class="table-wrap"><table id="staff-action-table" class="data-table"><thead><tr><th>Zone</th><th>What To Do</th><th>Soil Water</th><th>Disease Risk</th><th>Water Valve</th></tr></thead><tbody></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- Color Legend -->
+      <section class="section">
+        <div class="color-legend">
+          <div class="legend-title">📌 What the Colors Mean</div>
+          <div class="legend-items">
+            <div class="legend-item"><span class="legend-dot green"></span><strong>Green</strong> = Everything is good, do regular work</div>
+            <div class="legend-item"><span class="legend-dot yellow"></span><strong>Yellow</strong> = Watch carefully, action may be needed soon</div>
+            <div class="legend-item"><span class="legend-dot red"></span><strong>Red</strong> = Do this NOW, very important</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- ─── FOOTER ─── -->
+  <footer class="dashboard-footer">
+    <span>FarmSense Brew © 2025 — Batangas State University, Lipa Campus</span>
+    <span>·</span>
+    <span>IT 322: Advanced Systems Integration</span>
+  </footer>
+
+  <script src="dashboard.js"></script>
+</body>
+
+</html>

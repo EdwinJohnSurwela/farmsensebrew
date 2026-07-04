@@ -2,8 +2,8 @@
 -- FarmSense Brew — Seed Data
 -- File: database/seeds/001_seed_nodes_and_users.sql
 --
--- Run after migration:
---   mysql -h YOUR_RDS_ENDPOINT -u admin -p farmsense_db < 001_seed_nodes_and_users.sql
+-- Run after migration (set host/user to match your MySQL instance, e.g. XAMPP local):
+--   mysql -h 127.0.0.1 -u root -p farmsense_db < 001_seed_nodes_and_users.sql
 -- ══════════════════════════════════════════════════════════════════
 
 USE farmsense_db;
@@ -23,6 +23,7 @@ INSERT IGNORE INTO sensor_nodes (node_id, position, description) VALUES
 -- DEFAULT PASSWORDS BELOW — CHANGE BEFORE DEPLOYMENT
 --   agronomist_user password: FarmSense@2025
 --   farmowner_user  password: Javier@2025
+--   fieldstaff_user password: Staff@2025
 
 INSERT IGNORE INTO users (username, password_hash, role, full_name, email) VALUES
   ('agronomist_user',
@@ -35,7 +36,13 @@ INSERT IGNORE INTO users (username, password_hash, role, full_name, email) VALUE
    '$2b$10$Ar6NkiieRj1qlctvrufbmeQ7vYLh/MJ9FqsWq9MQXl.tRYI./2aou',
    'farm_owner',
    'Farm Owner - Javier',
-   'owner@javierfarm.ph');
+   'owner@javierfarm.ph'),
+
+  ('fieldstaff_user',
+   '$2b$10$EfnA83QcB2lSFb6idTQf2eXWMuv1LPP0rubFFr7NMqLHGSS57RcbO',
+   'field_staff',
+   'Field Staff',
+   'staff@javierfarm.ph');
 
 -- ─── VERIFY SEEDS ─────────────────────────────────────────────────────────────
 SELECT 'Sensor Nodes:' AS '';

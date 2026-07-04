@@ -4,6 +4,7 @@
  */
 
 const jwt = require("jsonwebtoken");
+const { COOKIE_NAME } = require("./grafana-auth.middleware");
 
 /**
  * Middleware: Verify JWT token from Authorization header.
@@ -11,7 +12,10 @@ const jwt = require("jsonwebtoken");
  */
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // "Bearer <token>"
+  let token = authHeader && authHeader.split(" ")[1]; // "Bearer <token>"
+  if (!token && req.cookies && req.cookies[COOKIE_NAME]) {
+    token = req.cookies[COOKIE_NAME];
+  }
 
   if (!token) {
     return res.status(401).json({ error: "Access token required" });
@@ -42,7 +46,7 @@ function requireAgronomist(req, res, next) {
  * Redundant but explicit — use for clarity in routes.
  */
 function requireAnyRole(req, res, next) {
-  const allowed = ["agronomist", "farm_owner"];
+  const allowed = ["agronomist", "farm_owner", "field_staff"];
   if (!allowed.includes(req.user.role)) {
     return res.status(403).json({ error: "Unauthorized role" });
   }

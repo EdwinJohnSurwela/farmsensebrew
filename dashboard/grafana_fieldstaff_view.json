@@ -1,0 +1,303 @@
+{
+  "__comment": "FarmSense Brew — Grafana Dashboard: Field Staff View",
+  "__instructions": [
+    "Import: Grafana → Dashboards → Import → Paste JSON",
+    "Set MySQL data source name to 'farmsense-mysql' before importing",
+    "Design reference: FIGMA MAKE_DASHBOARD/src/app/components/FieldStaffDashboard.tsx",
+    "This dashboard is designed for NON-TECHNICAL farm workers — NO raw sensor data shown"
+  ],
+  "title": "FarmSense Brew — Field Staff Dashboard",
+  "uid": "farmsense-staff-001",
+  "tags": [
+    "farmsense",
+    "field-staff",
+    "simple"
+  ],
+  "timezone": "Asia/Manila",
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 2
+      },
+      "options": {
+        "mode": "html",
+        "content": "<div style='background:#1e40af;color:white;padding:12px 20px;border-radius:8px;text-align:center'><h2 style='margin:0;color:white'>📋 Field Staff Dashboard — FarmSense Brew</h2><p style='margin:4px 0 0;opacity:0.9'>Simple instructions for your work today. Follow the colors and actions below.</p></div>"
+      }
+    },
+    {
+      "id": 2,
+      "title": "⚠️ URGENT ALERTS",
+      "description": "Zones that need immediate attention",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 2,
+        "w": 24,
+        "h": 4
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT CONCAT(COUNT(DISTINCT sr.node_id), ' zone(s) need attention — ', GROUP_CONCAT(DISTINCT CONCAT(sn.position, ' (', sr.clr_risk, ')') SEPARATOR ', ')) AS value FROM sensor_readings sr INNER JOIN (SELECT node_id, MAX(recorded_at) AS latest FROM sensor_readings GROUP BY node_id) l ON sr.node_id = l.node_id AND sr.recorded_at = l.latest LEFT JOIN sensor_nodes sn ON sr.node_id = sn.node_id WHERE sr.clr_risk = 'HIGH' OR sr.soil_pct < 30",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/.*/"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "🗺️ NODE_01 — NW Corner",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 8,
+        "h": 5
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT CASE WHEN sr.clr_risk = 'HIGH' THEN '🔴 CRITICAL — Check for disease signs NOW' WHEN sr.clr_risk = 'MODERATE' THEN '🟡 WATCH — Monitor this area closely' ELSE '🟢 GOOD — Continue regular work' END AS value FROM sensor_readings sr WHERE sr.node_id = 'NODE_01' ORDER BY sr.recorded_at DESC LIMIT 1",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "color": "#1e40af",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/.*/"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "🗺️ NODE_02 — NE Corner",
+      "type": "stat",
+      "gridPos": {
+        "x": 8,
+        "y": 6,
+        "w": 8,
+        "h": 5
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT CASE WHEN sr.clr_risk = 'HIGH' THEN '🔴 CRITICAL — DO NOT WATER. Check leaves for rust spots.' WHEN sr.clr_risk = 'MODERATE' THEN '🟡 WATCH — Monitor this area closely' ELSE '🟢 GOOD — Continue regular work' END AS value FROM sensor_readings sr WHERE sr.node_id = 'NODE_02' ORDER BY sr.recorded_at DESC LIMIT 1",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "color": "#1e40af",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/.*/"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "🗺️ NODE_05 — Center",
+      "type": "stat",
+      "gridPos": {
+        "x": 16,
+        "y": 6,
+        "w": 8,
+        "h": 5
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT CASE WHEN sr.clr_risk = 'HIGH' THEN '🔴 CRITICAL — Check for disease signs NOW' WHEN sr.clr_risk = 'MODERATE' THEN '🟡 WATCH — Monitor this area closely' ELSE '🟢 GOOD — Continue regular work' END AS value FROM sensor_readings sr WHERE sr.node_id = 'NODE_05' ORDER BY sr.recorded_at DESC LIMIT 1",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "color": "#1e40af",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/.*/"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "🗺️ NODE_03 — SW Corner",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 11,
+        "w": 12,
+        "h": 5
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT CASE WHEN sr.clr_risk = 'HIGH' THEN '🔴 CRITICAL — Check for disease signs NOW' WHEN sr.clr_risk = 'MODERATE' THEN '🟡 WATCH — Monitor this area closely' ELSE '🟢 GOOD — Continue regular work' END AS value FROM sensor_readings sr WHERE sr.node_id = 'NODE_03' ORDER BY sr.recorded_at DESC LIMIT 1",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "color": "#1e40af",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/.*/"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "🗺️ NODE_04 — SE Corner",
+      "type": "stat",
+      "gridPos": {
+        "x": 12,
+        "y": 11,
+        "w": 12,
+        "h": 5
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT CASE WHEN sr.clr_risk = 'HIGH' THEN '🔴 CRITICAL — Check for disease signs NOW' WHEN sr.soil_pct < 30 THEN '🔵 WATERING — Drip irrigation is ON. Check for leaks.' WHEN sr.clr_risk = 'MODERATE' THEN '🟡 WATCH — Monitor this area closely' ELSE '🟢 GOOD — Continue regular work' END AS value FROM sensor_readings sr WHERE sr.node_id = 'NODE_04' ORDER BY sr.recorded_at DESC LIMIT 1",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              {
+                "color": "#1e40af",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/.*/"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "👷 Detailed Action Instructions per Zone",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT sn.position AS 'Zone', CASE WHEN sr.clr_risk = 'HIGH' AND sr.soil_pct < 35 THEN '🚨 URGENT: DO NOT WATER this zone. Disease risk is HIGH. Check leaf undersides for yellow-orange spots. Report any findings to supervisor immediately.' WHEN sr.clr_risk = 'HIGH' THEN '🚨 URGENT: Disease risk HIGH. Walk through zone and look for yellow spots on leaves. Take photos of suspicious leaves. Do NOT water.' WHEN sr.soil_pct < 30 THEN '👷 ACTION: Drip irrigation is ON. Soil is very dry. Check drip lines for clogs. Monitor for 2 hours then report.' WHEN sr.soil_pct < 35 THEN '👷 ACTION: Prepare to water. If soil gets drier, irrigation will start automatically. Check weather — if rain expected, wait.' WHEN sr.clr_risk = 'MODERATE' THEN '⚠️ WATCH: Conditions may worsen. Walk through zone during next check. Look for any unusual leaf spots. Report anything unusual.' ELSE '✅ ALL GOOD: Continue regular monitoring. Check plants for pests. Remove fallen leaves from ground. Next check in 4 hours.' END AS 'What To Do', CASE WHEN sr.soil_pct < 30 THEN '💧 Very Dry' WHEN sr.soil_pct < 35 THEN '💧 Needs Water' ELSE '✓ Good' END AS 'Soil Water', CASE WHEN sr.clr_risk = 'HIGH' THEN '🦠 HIGH' WHEN sr.clr_risk = 'MODERATE' THEN '⚠️ WATCH' ELSE '✓ Safe' END AS 'Disease Risk', CASE WHEN sr.soil_pct < 35 AND sr.clr_risk != 'HIGH' THEN '💧 ON' WHEN sr.clr_risk = 'HIGH' THEN '🚫 STOP' ELSE '⏸ OFF' END AS 'Water Valve' FROM sensor_readings sr INNER JOIN (SELECT node_id, MAX(recorded_at) AS latest FROM sensor_readings GROUP BY node_id) l ON sr.node_id = l.node_id AND sr.recorded_at = l.latest LEFT JOIN sensor_nodes sn ON sr.node_id = sn.node_id ORDER BY FIELD(sr.clr_risk, 'HIGH', 'MODERATE', 'LOW'), sr.node_id",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "cellHeight": "lg"
+      }
+    },
+    {
+      "id": 9,
+      "title": "📌 What the Colors Mean",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "html",
+        "content": "<div style='display:flex;gap:40px;padding:10px 20px;background:#f9fafb;border-radius:8px;border:2px solid #e5e7eb'><div style='display:flex;align-items:center'><div style='width:24px;height:24px;border-radius:50%;background:#22c55e;margin-right:12px'></div><strong>Green</strong>&nbsp;= Everything is good, do regular work</div><div style='display:flex;align-items:center'><div style='width:24px;height:24px;border-radius:50%;background:#eab308;margin-right:12px'></div><strong>Yellow</strong>&nbsp;= Watch carefully, action may be needed soon</div><div style='display:flex;align-items:center'><div style='width:24px;height:24px;border-radius:50%;background:#ef4444;margin-right:12px'></div><strong>Red</strong>&nbsp;= Do this NOW, very important</div></div>"
+      }
+    }
+  ]
+}
