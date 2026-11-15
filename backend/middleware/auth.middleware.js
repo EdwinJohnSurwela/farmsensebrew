@@ -6,9 +6,13 @@
 const jwt = require("jsonwebtoken");
 const { COOKIE_NAME } = require("./grafana-auth.middleware");
 
+const sessions = require("../services/session.service");
+
 /**
  * Middleware: Verify JWT token from Authorization header.
  * Attaches decoded user info (id, username, role) to req.user.
+ * Also enforces single active session: a token whose sv claim no longer
+ * matches users.session_version was displaced by a newer login.
  */
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -21,11 +25,23 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ error: "Access token required" });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
     if (err) {
       return res.status(403).json({ error: "Invalid or expired token" });
     }
-    req.user = user; // { id, username, role }
+    try {
+      const sv = await sessions.currentVersion(user.id);
+      if ((user.sv ?? 0) !== sv) {
+        return res.status(403).json({
+          code: "SESSION_DISPLACED",
+          error: "This session has ended: the account was signed out, or signed in on another device."
+        });
+      }
+    } catch (_) {
+      // DB hiccup — fall through rather than lock everyone out
+    }
+    sessions.touch(user.id); // this device is in use
+    req.user = user; // { id, username, role, sv }
     next();
   });
 }

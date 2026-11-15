@@ -42,8 +42,19 @@ function tokenFromCookieHeader(req) {
   return null;
 }
 
+function tokenFromQuery(req) {
+  if (req.query && req.query.token) {
+    // A duplicated ?token= param parses as an array — take the first so a
+    // client that accidentally doubles the param still authenticates.
+    return Array.isArray(req.query.token) ? req.query.token[0] : req.query.token;
+  }
+  return null;
+}
+
 function extractToken(req) {
-  return tokenFromAuthorization(req) || tokenFromCookies(req);
+  // Query token outranks the cookie: an explicit ?token= (Flutter webview,
+  // deep links) must win over whatever session cookie is lying around.
+  return tokenFromAuthorization(req) || tokenFromQuery(req) || tokenFromCookies(req);
 }
 
 function verifyGrafanaUser(req) {
@@ -82,10 +93,21 @@ function toSafeGrafanaBrowserPath(redirectTo) {
 function requireGrafanaAuth(req, res, next) {
   const user = verifyGrafanaUser(req);
   if (!user) {
-    const pathOnly = req.originalUrl.split("?")[0];
-    const afterLogin = pathOnly.startsWith("/grafana") ? pathOnly : "/grafana/";
-    const qs = new URLSearchParams({ login: "required", afterLogin });
-    return res.redirect(302, "/?" + qs.toString());
+    // Not authenticated — send to the web app portal to log in
+    return res.redirect(302, "/app/");
+  }
+  // When auth arrived via ?token= (e.g. Flutter opening Grafana in a new
+  // tab), persist it as the session cookie so the page's follow-up asset
+  // requests are authorized too — always refresh so a stale cookie from a
+  // different user can't shadow the explicit token.
+  if (tokenFromQuery(req)) {
+    res.cookie(COOKIE_NAME, tokenFromQuery(req), {
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 8 * 60 * 60 * 1000,
+      path: "/",
+      secure: process.env.COOKIE_SECURE === "true"
+    });
   }
   req.grafanaUser = user;
   next();

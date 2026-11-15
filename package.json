@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "mqtt": "^5.15.1",
-    "mysql2": "^3.22.3",
-    "node-red-node-mysql": "^3.0.0"
-  }
-}

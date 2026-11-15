@@ -1,0 +1,466 @@
+{
+  "id": null,
+  "uid": "farmsense-scaleup-001",
+  "title": "FarmSense Brew · System Overview",
+  "tags": [
+    "farmsense"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "refresh": "2s",
+  "schemaVersion": 39,
+  "version": 1,
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "2s",
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m"
+    ]
+  },
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "fiscalYearStartMonth": 0,
+  "liveNow": false,
+  "panels": [
+    {
+      "id": 25,
+      "type": "stat",
+      "title": "Nodes",
+      "description": "",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT COUNT(*) AS `Registered`, SUM(CASE WHEN lr.id IS NOT NULL AND (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) THEN 1 ELSE 0 END) AS `Online`, SUM(CASE WHEN lr.id IS NULL OR NOT ((lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND)) THEN 1 ELSE 0 END) AS `Offline` FROM sensor_nodes sn LEFT JOIN (SELECT node_id, 1 AS id, online, air_ok, soil_ok, temperature, humidity, soil_pct, clr_risk, confidence_pct, COALESCE(values_at, last_seen) AS recorded_at, updated_at FROM node_live) lr ON lr.node_id = sn.node_id WHERE sn.is_active = 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "Waiting for readings",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#3B82F6",
+                "value": null
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Online"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#22C55E"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Registered"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#9CA3AF"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Offline"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#9CA3AF"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false
+      }
+    },
+    {
+      "id": 26,
+      "type": "table",
+      "title": "Registered nodes",
+      "description": "A node posting every 5 minutes sends 288 readings a day.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT CONCAT('Node ', CAST(SUBSTRING(sn.node_id, 6) AS UNSIGNED), ' · ', CASE sn.position WHEN 'NW_CORNER' THEN 'NW' WHEN 'NE_CORNER' THEN 'NE' WHEN 'CENTER' THEN 'Centre' WHEN 'SW_CORNER' THEN 'SW' WHEN 'SE_CORNER' THEN 'SE' ELSE sn.position END) AS `Node`, sn.node_id AS `ID`, CASE WHEN (lr.id IS NULL OR NOT (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) OR (lr.air_ok = 0 AND lr.soil_ok = 0)) AND ((lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) AND lr.air_ok = 0 AND lr.soil_ok = 0) THEN 'Both sensors not reading' WHEN (lr.id IS NULL OR NOT (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) OR (lr.air_ok = 0 AND lr.soil_ok = 0)) THEN 'Offline' WHEN lr.temperature IS NULL THEN 'DHT22 problem' WHEN lr.clr_risk = 'CRITICAL' THEN 'Critical' WHEN lr.clr_risk = 'HIGH' THEN 'High' WHEN lr.clr_risk = 'MODERATE' THEN 'Moderate' WHEN lr.clr_risk = 'LOW' THEN 'Low' ELSE 'Minimal' END AS `Status`, UNIX_TIMESTAMP(lr.recorded_at) * 1000 AS `Last reading`, (SELECT COUNT(*) FROM sensor_readings r WHERE r.node_id = sn.node_id AND r.recorded_at >= NOW() - INTERVAL 24 HOUR) AS `Readings (24 h)`, sn.installed_at AS `Installed` FROM sensor_nodes sn LEFT JOIN (SELECT node_id, 1 AS id, online, air_ok, soil_ok, temperature, humidity, soil_pct, clr_risk, confidence_pct, COALESCE(values_at, last_seen) AS recorded_at, updated_at FROM node_live) lr ON lr.node_id = sn.node_id WHERE sn.is_active = 1 ORDER BY sn.node_id"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "Nothing yet",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "Offline": {
+                        "color": "#9CA3AF",
+                        "index": 0
+                      },
+                      "Minimal": {
+                        "color": "#22C55E",
+                        "index": 1
+                      },
+                      "Low": {
+                        "color": "#84CC16",
+                        "index": 2
+                      },
+                      "Moderate": {
+                        "color": "#F59E0B",
+                        "index": 3
+                      },
+                      "High": {
+                        "color": "#F97316",
+                        "index": 4
+                      },
+                      "Critical": {
+                        "color": "#EF4444",
+                        "index": 5
+                      },
+                      "Both sensors not reading": {
+                        "color": "#6B21A8",
+                        "index": 6
+                      },
+                      "DHT22 problem": {
+                        "color": "#6B21A8",
+                        "index": 7
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last reading"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "noValue",
+                "value": "No readings yet"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Installed"
+            },
+            "properties": [
+              {
+                "id": "noValue",
+                "value": "Not yet"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "md",
+        "footer": {
+          "show": false
+        }
+      }
+    },
+    {
+      "id": 27,
+      "type": "timeseries",
+      "title": "Readings received per hour",
+      "description": "12 per hour per node is complete at 5-minute posting.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "time_series",
+          "rawSql": "SELECT $__timeGroupAlias(recorded_at, '1h'), CONCAT('Node ', CAST(SUBSTRING(node_id, 6) AS UNSIGNED)) AS metric, COUNT(*) AS value FROM sensor_readings WHERE $__timeFilter(recorded_at) GROUP BY 1, 2 ORDER BY 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "Waiting for readings",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 0,
+            "gradientMode": "opacity",
+            "showPoints": "never",
+            "spanNulls": 600000,
+            "axisBorderShow": false,
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0,
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 28,
+      "type": "table",
+      "title": "Sensor faults",
+      "description": "A sensor that gave no good value for 1 minute while its box was on. Open faults stay at the top until the sensor reads again.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT CONCAT('Node ', CAST(SUBSTRING(f.node_id, 6) AS UNSIGNED)) AS `Node`, CASE f.sensor WHEN 'air' THEN 'DHT22 (temperature and humidity)' ELSE 'Capacitive soil moisture sensor' END AS `Sensor`, UNIX_TIMESTAMP(f.started_at) * 1000 AS `Stopped`, UNIX_TIMESTAMP(f.ended_at) * 1000 AS `Came back`, CASE WHEN f.ended_at IS NULL THEN 'Still not reading' ELSE CONCAT(TIMESTAMPDIFF(MINUTE, f.started_at, f.ended_at), ' min') END AS `Out for` FROM node_sensor_faults f WHERE f.ended_at IS NULL OR $__timeFilter(f.started_at) ORDER BY f.ended_at IS NULL DESC, f.started_at DESC LIMIT 50"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "No sensor faults",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Stopped"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Came back"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              },
+              {
+                "id": "noValue",
+                "value": "Not yet"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Out for"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "Still not reading": {
+                        "color": "#EF4444",
+                        "index": 0
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "md",
+        "footer": {
+          "show": false
+        }
+      }
+    }
+  ]
+}

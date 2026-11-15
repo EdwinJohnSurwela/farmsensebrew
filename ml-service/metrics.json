@@ -1,0 +1,101 @@
+{
+  "trained_at": "2026-11-01T14:55:12",
+  "algorithm": "RandomForestClassifier (n_estimators=200, max_depth=8)",
+  "training_rows": 101602,
+  "test_rows": 25401,
+  "labeling": "Expert rule engine (agronomic CLR thresholds) \u2014 knowledge distillation",
+  "classes": [
+    "MINIMAL",
+    "LOW",
+    "MODERATE",
+    "HIGH",
+    "CRITICAL"
+  ],
+  "per_class": {
+    "MINIMAL": {
+      "precision": 0.9569,
+      "recall": 0.9427,
+      "f1": 0.9497,
+      "support": 6024
+    },
+    "LOW": {
+      "precision": 0.6858,
+      "recall": 0.7183,
+      "f1": 0.7017,
+      "support": 2109
+    },
+    "MODERATE": {
+      "precision": 0.5895,
+      "recall": 0.5888,
+      "f1": 0.5891,
+      "support": 1690
+    },
+    "HIGH": {
+      "precision": 0.5864,
+      "recall": 0.6129,
+      "f1": 0.5993,
+      "support": 1922
+    },
+    "CRITICAL": {
+      "precision": 0.9697,
+      "recall": 0.9629,
+      "f1": 0.9663,
+      "support": 13656
+    }
+  },
+  "macro_f1": 0.7612,
+  "accuracy": 0.8864,
+  "evaluation_protocol": "Hold-out test inputs perturbed with sensor measurement noise (temp \u03c3=0.5\u00b0C, humidity \u03c3=2.5%, soil \u03c3=3%) against clean-value labels",
+  "clean_input_accuracy": 0.9957,
+  "confusion_matrix": {
+    "labels": [
+      "MINIMAL",
+      "LOW",
+      "MODERATE",
+      "HIGH",
+      "CRITICAL"
+    ],
+    "matrix": [
+      [
+        5679,
+        339,
+        6,
+        0,
+        0
+      ],
+      [
+        244,
+        1515,
+        339,
+        11,
+        0
+      ],
+      [
+        12,
+        341,
+        995,
+        332,
+        10
+      ],
+      [
+        0,
+        13,
+        330,
+        1178,
+        401
+      ],
+      [
+        0,
+        1,
+        18,
+        488,
+        13149
+      ]
+    ]
+  },
+  "feature_importances": {
+    "temperature": 0.3825,
+    "humidity": 0.5813,
+    "soil_pct": 0.0362
+  }
+}

@@ -1,0 +1,690 @@
+/* ═════════════════════════════════════════════════════════════════
+   FarmSense Brew design refresh, 27 Sept 2026.
+   A field-journal look drawn from the farm: leaf green, roasted coffee,
+   ripe-cherry red, warm paper. IBM Plex Serif for headings and big readings,
+   IBM Plex Sans for text, IBM Plex Mono for IDs, times and labels.
+   Scoped to the app and the login screens; the landing page keeps its
+   own style (landing.css). Loaded after styles.css, so these rules win.
+   ═════════════════════════════════════════════════════════════════ */
+
+.app-shell, .login-wrap, .modal-backdrop {
+  --paper: #f3eee3;
+  --surface: #fffdf8;
+  --surface-2: #f8f3e8;
+  --line: #e0d6c3;
+  --line-2: #ebe3d4;
+  --ink: #1d271f;
+  --ink-2: #4b5649;
+  --ink-3: #847d6d;
+
+  --leaf: #2f6b3a;
+  --leaf-mid: #24502d;
+  --leaf-deep: #16301d;
+  --leaf-soft: #e2ebd8;
+  --coffee: #6b4a30;
+  --coffee-soft: #efe3d2;
+  --cherry: #a8322a;
+  --cherry-soft: #f5e0da;
+  --amber: #a36b10;
+  --amber-soft: #f6e7c8;
+  --water: #2a6479;
+  --water-soft: #dbe9ed;
+  --clay: #a4532c;
+  --clay-soft: #f3e1d4;
+
+  /* names the pages already use, mapped onto the farm palette */
+  --agronomist: var(--water);   --agronomist-dark: #20505f;
+  --owner: var(--leaf);         --owner-dark: #255830;
+  --staff: var(--clay);         --staff-dark: #874322;
+  --admin: var(--coffee);       --admin-dark: #553a25;
+  --bg: var(--paper);
+  --border: var(--line);
+  --card-border: var(--line);
+  --text: var(--ink);
+  --text-2: var(--ink-2);
+  --muted: var(--ink-3);
+  --red: var(--cherry);
+  --yellow: var(--amber);
+  --green: #3b7d46;
+  --brand: var(--leaf);
+  --brand-dark: var(--leaf-deep);
+  --brand-soft: var(--leaf-soft);
+  --shadow: none;
+
+  --font-ui: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-head: 'IBM Plex Serif', Georgia, 'Times New Roman', serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+  --radius: 10px;
+
+  font-family: var(--font-ui);
+  color: var(--ink);
+  font-feature-settings: 'tnum' 0;
+}
+.app-shell, .login-wrap { background: var(--paper); }
+.app-shell button, .app-shell input, .app-shell select, .app-shell textarea,
+.login-wrap button, .login-wrap input, .login-wrap select,
+.modal-backdrop button, .modal-backdrop input, .modal-backdrop select { font-family: var(--font-ui); }
+.shell-main { background: var(--paper); }
+
+/* the eyebrow: small caps label in mono, used above headings and on cards */
+.eyebrow {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
+}
+.mono { font-family: var(--font-mono); font-size: 0.95em; letter-spacing: 0; }
+.num { font-variant-numeric: tabular-nums lining-nums; }
+
+/* ── Sidebar ───────────────────────────────────────────────────── */
+@media (min-width: 900px) {
+  .app-shell .sidebar {
+    background: var(--leaf-deep);
+    background-image:
+      radial-gradient(120% 60% at 0% 100%, rgba(120, 160, 90, 0.10), transparent 60%);
+    color: #dfe8d9; padding: 22px 12px 16px;
+  }
+}
+.app-shell .brand { border-bottom: 1px solid rgba(223, 232, 217, 0.12); padding: 0 8px 20px; margin-bottom: 18px; }
+.app-shell .brand-mark {
+  width: 38px; height: 38px; border-radius: 9px; font-size: 0;
+  background: rgba(226, 235, 216, 0.10); color: #b9d3a3;
+}
+.app-shell .brand-name { white-space: nowrap; font-family: var(--font-head); font-size: 19px; font-weight: 600; letter-spacing: -0.01em; font-variation-settings: 'SOFT' 100; }
+.app-shell .brand-sub { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.65; margin-top: 3px; }
+.app-shell .side-nav { gap: 2px; }
+.app-shell .side-nav button {
+  position: relative; border-radius: 8px; padding: 10px 12px; gap: 12px;
+  color: rgba(223, 232, 217, 0.78); font-size: 14px; font-weight: 500;
+}
+.app-shell .side-nav button:hover { background: rgba(223, 232, 217, 0.06); color: #fff; }
+.app-shell .side-nav button.active { background: rgba(223, 232, 217, 0.11); color: #fff; font-weight: 600; }
+.app-shell .side-nav button.active::before {
+  content: ''; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 3px;
+  border-radius: 0 3px 3px 0; background: #b9d3a3;
+}
+.app-shell .side-nav .ico { width: 20px; display: inline-flex; justify-content: center; font-size: 19px; }
+.app-shell .nav-badge { background: var(--cherry); font-family: var(--font-mono); font-weight: 500; }
+.app-shell .about-card {
+  border: 1px solid rgba(223, 232, 217, 0.14); border-radius: 8px; padding: 12px 13px;
+  font-size: 12px; color: rgba(223, 232, 217, 0.78); background: rgba(0, 0, 0, 0.08);
+}
+.app-shell .about-title { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.07em; text-transform: uppercase; color: #cfe0c3; font-weight: 500; }
+.app-shell .side-logout {
+  border: 1px solid rgba(223, 232, 217, 0.18); border-radius: 8px; color: #e6eee1; font-weight: 500;
+}
+.app-shell .side-logout .ico { display: inline-flex; font-size: 17px; }
+
+/* ── Top bar ───────────────────────────────────────────────────── */
+.app-shell .topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
+.app-shell .topbar-left { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-3); }
+.app-shell .muted-dot { color: var(--line); }
+.app-shell .sync-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; }
+.app-shell .sync-time { font-family: var(--font-mono); font-size: 12px; font-weight: 500; }
+.app-shell .sync-latest { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+.app-shell .bell { display: inline-flex; color: var(--ink-2); font-size: 20px; border-radius: 8px; padding: 6px; }
+.app-shell .bell:hover { background: var(--surface-2); color: var(--ink); }
+.app-shell .bell-badge { background: var(--cherry); font-family: var(--font-mono); font-weight: 500; top: -2px; right: -4px; }
+.app-shell .avatar { background: var(--coffee); border-radius: 9px; font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.02em; }
+.app-shell .user-name { font-weight: 600; }
+.app-shell .user-role { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* ── Page heading ──────────────────────────────────────────────── */
+.app-shell .banner { padding-top: 26px; padding-bottom: 14px; }
+.app-shell .banner h1 {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-head); font-weight: 560; font-size: 30px; line-height: 1.15;
+  letter-spacing: -0.015em; color: var(--ink); font-variation-settings: 'SOFT' 50;
+}
+.app-shell .banner h1 svg { color: var(--leaf); flex: none; }
+.app-shell .banner .sub { color: var(--ink-2); font-size: 13.5px; margin-top: 5px; }
+.app-shell .badge-live { background: var(--leaf-soft); color: var(--leaf-mid); font-family: var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase; border-radius: 6px; }
+
+/* section headings between cards */
+.app-shell .page h3 { font-family: var(--font-head); font-weight: 560; font-size: 18px; letter-spacing: -0.005em; font-variation-settings: 'SOFT' 50; }
+
+/* ── Cards ─────────────────────────────────────────────────────── */
+.app-shell .card, .app-shell .alert-card, .modal-backdrop .card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: none;
+}
+.app-shell .card h3, .app-shell .alert-card h3 {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-head); font-size: 18px; font-weight: 560; letter-spacing: -0.005em;
+  font-variation-settings: 'SOFT' 50; color: var(--ink);
+}
+.app-shell .card h3 svg, .app-shell .alert-card h3 svg { color: var(--leaf); flex: none; }
+.app-shell .alert-card { padding: 14px 16px; }
+.app-shell .alert-card:hover { border-color: #d3c6ad; }
+
+/* tinted callout cards: the pages used pastel greens, yellows and blues */
+.app-shell .callout { border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; border: 1px solid; font-size: 13px; }
+.app-shell .callout.leaf { background: var(--leaf-soft); border-color: #c8d8b8; color: var(--leaf-mid); }
+.app-shell .callout.amber { background: var(--amber-soft); border-color: #e8d09f; color: #6e4a0c; }
+.app-shell .callout.water { background: var(--water-soft); border-color: #bcd6de; color: #1f4c5c; }
+.app-shell .callout.cherry { background: var(--cherry-soft); border-color: #e8c1b8; color: #7d231d; }
+.app-shell .callout h3 { font-size: 16px; margin-bottom: 4px; }
+.app-shell .callout p { color: inherit; opacity: 0.9; }
+
+/* ── Summary cards: label, big number, status ─────────────────── */
+.app-shell .kpi-card {
+  display: block; position: relative; background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px 15px; box-shadow: none;
+}
+.app-shell .kpi-icon {
+  position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.app-shell .tone-green { background: var(--leaf-soft); color: var(--leaf); }
+.app-shell .tone-blue { background: var(--water-soft); color: var(--water); }
+.app-shell .tone-orange { background: var(--amber-soft); color: var(--amber); }
+.app-shell .tone-red { background: var(--cherry-soft); color: var(--cherry); }
+.app-shell .tone-purple { background: var(--coffee-soft); color: var(--coffee); }
+.app-shell .kpi-label {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--ink-3); padding-right: 40px;
+}
+.app-shell .kpi-value {
+  font-family: var(--font-head); font-size: 36px; font-weight: 500; line-height: 1.05; margin-top: 10px;
+  letter-spacing: -0.02em; font-variant-numeric: tabular-nums lining-nums; font-variation-settings: 'SOFT' 30;
+}
+.app-shell .kpi-unit { font-family: var(--font-ui); font-size: 14px; font-weight: 500; color: var(--ink-3); margin-left: 5px; letter-spacing: 0; }
+.app-shell .kpi-status { font-size: 12.5px; font-weight: 500; margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+.app-shell .kpi-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+.app-shell .kpi-sub { font-size: 11.5px; color: var(--ink-3); }
+.app-shell .text-green { color: var(--leaf); } .app-shell .text-red { color: var(--cherry); }
+.app-shell .text-orange { color: var(--amber); } .app-shell .text-blue { color: var(--water); }
+.app-shell .text-purple { color: var(--coffee); } .app-shell .text-muted { color: var(--ink-3); }
+
+/* older small KPI tiles */
+.app-shell .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.app-shell .kpi .label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; }
+.app-shell .kpi .value { font-family: var(--font-head); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+/* ── Tables: a logbook ─────────────────────────────────────────── */
+.app-shell table.data th {
+  background: transparent; color: var(--ink-3); font-family: var(--font-mono);
+  font-size: 10.5px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  border-bottom: 1.5px solid var(--ink); padding: 9px 12px; border-radius: 0 !important;
+}
+.app-shell table.data td { border-bottom: 1px solid var(--line-2); font-size: 13.5px; }
+.app-shell table.data tbody tr:hover td { background: var(--surface-2); }
+
+/* ── Pills, chips, risk ────────────────────────────────────────── */
+.app-shell .pill {
+  display: inline-flex; align-items: center; gap: 4px; border-radius: 5px; padding: 2px 8px;
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;
+}
+.app-shell .chip {
+  border-radius: 7px; padding: 6px 12px; font-size: 12.5px; font-weight: 500;
+  background: var(--surface); color: var(--ink-2); border: 1px solid var(--line);
+}
+.app-shell .chip:hover { border-color: #cdbfa5; color: var(--ink); }
+.app-shell .chip.active { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.app-shell .risk-chip {
+  display: inline-flex; align-items: center; gap: 6px; border-radius: 5px; padding: 3px 9px;
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.app-shell .risk-chip::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.app-shell .status-online { color: var(--leaf); } .app-shell .status-offline { color: var(--ink-3); }
+
+/* ── Buttons and fields ────────────────────────────────────────── */
+.app-shell .btn, .login-wrap .btn, .modal-backdrop .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  border-radius: 8px; font-weight: 600; letter-spacing: 0.005em; background: var(--leaf);
+}
+.app-shell .btn:hover:not(:disabled), .login-wrap .btn:hover:not(:disabled), .modal-backdrop .btn:hover:not(:disabled) { filter: brightness(0.94); }
+.app-shell .btn.green, .modal-backdrop .btn.green { background: var(--leaf); }
+.app-shell .btn.red, .modal-backdrop .btn.red { background: var(--cherry); }
+.app-shell .btn.purple, .modal-backdrop .btn.purple { background: var(--coffee); }
+.app-shell .btn.ghost, .login-wrap .btn.ghost, .modal-backdrop .btn.ghost { background: var(--surface); color: var(--ink-2); border: 1px solid var(--line); }
+.app-shell .btn.ghost:hover:not(:disabled), .modal-backdrop .btn.ghost:hover:not(:disabled) { filter: none; background: var(--surface-2); color: var(--ink); }
+.app-shell .btn.icon { padding: 7px; width: 34px; height: 34px; }
+.app-shell .field label, .modal-backdrop .field label, .login-wrap .field label { font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+.app-shell .field input, .app-shell .field select,
+.modal-backdrop .field input, .modal-backdrop .field select,
+.login-wrap .field input, .login-wrap .field select,
+.app-shell input[type='search'], .app-shell input[type='text'] {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px; color: var(--ink);
+}
+.app-shell .field input:focus, .app-shell .field select:focus,
+.modal-backdrop .field input:focus, .modal-backdrop .field select:focus,
+.login-wrap .field input:focus { border-color: var(--leaf); box-shadow: 0 0 0 3px rgba(47, 107, 58, 0.14); outline: none; }
+.app-shell .switch input:checked + .track { background: var(--leaf); }
+.app-shell .switch .track { background: #d9cfbd; }
+
+/* ── Modals ────────────────────────────────────────────────────── */
+.modal-backdrop { background: rgba(22, 30, 22, 0.45); }
+.modal-backdrop .modal { background: var(--surface); border-radius: 12px; border: 1px solid var(--line); color: var(--ink); }
+.modal-backdrop .modal h2 {
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--font-head); font-size: 22px; font-weight: 560; letter-spacing: -0.01em; font-variation-settings: 'SOFT' 50;
+}
+.modal-backdrop .modal h2 svg { flex: none; }
+.modal-backdrop .muted { color: var(--ink-3); }
+
+/* ── Misc ──────────────────────────────────────────────────────── */
+.app-shell .muted { color: var(--ink-3); }
+.app-shell .empty-state { color: var(--ink-3); font-size: 13.5px; }
+.app-shell .empty-state svg { display: block; margin: 0 auto 10px; font-size: 30px; color: #c7bba4; }
+.app-shell .error-text { color: var(--cherry); }
+.app-shell .ok-text { color: var(--leaf); }
+.app-shell .live-dot.on { background: #4a9a57; }
+.app-shell .lang-toggle { border-color: var(--line); border-radius: 7px; }
+.app-shell .lang-toggle button { font-family: var(--font-mono); letter-spacing: 0.04em; }
+.app-shell .lang-toggle button.on { background: var(--leaf); }
+.app-shell .grafana-frame { border-radius: var(--radius); border: 1px solid var(--line); }
+.app-shell .fresh { animation-name: fresh-flash-leaf; }
+@keyframes fresh-flash-leaf { 0% { background: rgba(74, 154, 87, 0.28); } 100% { background: transparent; } }
+.app-shell .zone-map-box { background: var(--leaf-soft); border-color: #c8d8b8; }
+
+/* ── Bottom navigation (phones) ────────────────────────────────── */
+.app-shell .bottom-nav { background: var(--surface); border-top: 1px solid var(--line); }
+.app-shell .bottom-nav button { color: var(--ink-3); font-size: 10.5px; }
+.app-shell .bottom-nav button .ico { display: inline-flex; font-size: 22px; }
+.app-shell .bottom-nav button.active { color: var(--leaf); }
+
+/* ── Login screens ─────────────────────────────────────────────── */
+.login-wrap .login-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: none; }
+.login-wrap .login-card .ico-circle {
+  border-radius: 12px; width: 60px; height: 60px; font-size: 30px;
+  background: color-mix(in srgb, var(--accent) 13%, var(--surface)); color: var(--accent);
+}
+.login-wrap .login-card h1 { font-family: var(--font-head); font-weight: 560; font-size: 28px; letter-spacing: -0.015em; font-variation-settings: 'SOFT' 50; }
+.login-wrap .link-btn { color: var(--leaf); }
+
+/* ── SweetAlert2 dialogs and toasts (they sit outside the app) ─── */
+.swal2-popup { font-family: 'IBM Plex Sans', system-ui, sans-serif !important; border-radius: 12px !important; background: #fffdf8 !important; color: #1d271f !important; }
+.swal2-title { font-family: 'IBM Plex Serif', Georgia, serif !important; font-weight: 560 !important; letter-spacing: -0.01em; }
+.swal2-toast .swal2-title { font-family: 'IBM Plex Sans', system-ui, sans-serif !important; font-weight: 500 !important; }
+.swal2-styled { border-radius: 8px !important; font-weight: 600 !important; }
+
+/* ── Field staff: the selected node card ───────────────────────── */
+.app-shell .node-card { display: flex; flex-direction: column; gap: 16px; border-left: 4px solid var(--node, var(--line)); }
+.app-shell .node-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.app-shell .node-card-head h3 { font-size: 23px; }
+.app-shell .node-readings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.app-shell .node-reading { background: var(--surface-2); border: 1px solid var(--line-2); border-radius: 8px; padding: 10px 12px; }
+.app-shell .node-reading-value {
+  font-family: var(--font-head); font-size: 32px; font-weight: 500; line-height: 1.1; margin-top: 6px;
+  letter-spacing: -0.02em; font-variant-numeric: tabular-nums lining-nums; font-variation-settings: 'SOFT' 30;
+}
+.app-shell .node-action { flex: 1; display: flex; flex-direction: column; gap: 8px; border: 1px solid; border-radius: 8px; padding: 14px 16px; }
+.app-shell .node-action p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--ink); }
+.app-shell .node-action-tag {
+  align-self: flex-start; padding: 3px 9px; border-radius: 5px; color: #fff;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.app-shell .node-action.tone-cherry { background: var(--cherry-soft); border-color: #e8c1b8; }
+.app-shell .node-action.tone-cherry .node-action-tag { background: var(--cherry); }
+.app-shell .node-action.tone-amber { background: var(--amber-soft); border-color: #e8d09f; }
+.app-shell .node-action.tone-amber .node-action-tag { background: var(--amber); }
+.app-shell .node-action.tone-leaf { background: var(--leaf-soft); border-color: #c8d8b8; }
+.app-shell .node-action.tone-leaf .node-action-tag { background: var(--leaf); }
+.app-shell .node-action.tone-offline { background: var(--surface-2); border-color: var(--line); }
+.app-shell .node-action.tone-offline .node-action-tag { background: var(--ink-3); }
+.app-shell .node-card-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+@media (max-width: 520px) {
+  .app-shell .node-readings { gap: 6px; }
+  .app-shell .node-reading { padding: 8px 9px; }
+  .app-shell .node-reading-value { font-size: 24px; }
+  .app-shell .node-action p { font-size: 14.5px; }
+}
+
+/* ── Irrigation: automatic watering panel (29 Sept 2026) ───────── */
+.app-shell .auto-head { display: flex; align-items: center; gap: 14px; }
+.app-shell .auto-valve-num {
+  width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+  font-weight: 800; font-size: 17px; background: var(--surface-2); color: var(--muted); flex: none;
+}
+.app-shell .auto-valve-num.on { background: var(--leaf-soft); color: var(--green); }
+.app-shell .auto-rules { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.55; color: var(--ink-2); }
+.app-shell .auto-rules li + li { margin-top: 5px; }
+.app-shell .auto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.app-shell .auto-field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--ink-2); }
+.app-shell .auto-field input {
+  padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface);
+  font-size: 14px; color: var(--ink);
+}
+.app-shell .auto-field input:focus { outline: 2px solid var(--leaf); outline-offset: 1px; }
+.app-shell .auto-field input:disabled { background: var(--surface-2); color: var(--ink-3); }
+
+/* ── Dashboard status cards: Irrigation + System Health (29 Sept 2026) ── */
+.app-shell .cards-top { align-items: start; }
+.app-shell .card-head { display: flex; align-items: center; justify-content: space-between; gap: 6px 10px; flex-wrap: wrap; }
+.app-shell .card-head h3 { margin-bottom: 0; }
+.app-shell .card-sub { font-size: 13px; color: var(--ink-2); margin: 6px 0 10px; }
+.app-shell .status-list { list-style: none; margin: 0; padding: 0; }
+.app-shell .status-list li {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 9px 0; border-top: 1px solid var(--line-2); font-size: 13px;
+}
+/* Left side may shrink; the right side shrinks and wraps instead of running off
+   the card. Node names stay on one line. (3 Oct 2026) */
+.app-shell .status-list li > :first-child { flex: 1 1 auto; min-width: 0; }
+.app-shell .status-list li > :last-child { text-align: right; flex: 0 1 auto; min-width: 0; overflow-wrap: break-word; }
+.app-shell .status-list .health-row { white-space: nowrap; }
+.app-shell .status-list .action-by { white-space: nowrap; }
+.app-shell .status-list li > :last-child:is(.risk-chip) { flex: none; }
+@media (max-width: 480px) {
+  /* Narrow screens: a status row's detail goes under its name. */
+  .app-shell .status-list li.status-row { flex-wrap: wrap; row-gap: 2px; }
+  .app-shell .status-list li.status-row > :last-child { flex-basis: 100%; text-align: left; padding-left: 17px; }
+}
+.app-shell .status-note { margin: 2px 0 0; font-size: 12px; color: var(--ink-3); }
+.app-shell .health-row { display: inline-flex; align-items: center; gap: 9px; }
+.app-shell .health-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.app-shell .health-dot.ok { background: var(--green); }
+.app-shell .health-dot.bad { background: var(--cherry); box-shadow: 0 0 0 3px var(--cherry-soft); }
+.app-shell .health-bad-text { color: var(--cherry); font-size: 12.5px; }
+.app-shell .health-badge {
+  white-space: nowrap;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.04em;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 6px;
+}
+.app-shell .health-badge.ok { background: var(--leaf-soft); color: var(--leaf); }
+.app-shell .health-badge.warn { background: var(--cherry-soft); color: var(--cherry); }
+
+/* ── Download data dropdown (29 Sept 2026) ─────────────────────── */
+.app-shell .dl-wrap { position: relative; display: inline-block; }
+.app-shell .dl-menu {
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 60; width: 290px;
+  display: flex; flex-direction: column; gap: 6px; padding: 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: 0 12px 32px -12px rgba(29, 39, 31, 0.35); text-align: left;
+}
+.app-shell .dl-title { font-family: var(--font-head); font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.app-shell .dl-label { font-size: 12px; color: var(--ink-2); margin-top: 4px; }
+.app-shell .dl-menu select, .app-shell .dl-menu input[type="date"] {
+  width: 100%; padding: 8px 9px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--surface); font-size: 13.5px; color: var(--ink);
+}
+.app-shell .dl-seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.app-shell .dl-seg button { flex: 1; padding: 7px 0; border: none; background: var(--surface); font-size: 13px; color: var(--ink-2); }
+.app-shell .dl-seg button + button { border-left: 1px solid var(--line); }
+.app-shell .dl-seg button.on { background: var(--leaf); color: #fff; font-weight: 600; }
+.app-shell .dl-range { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.app-shell .dl-range label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ink-2); }
+.app-shell .dl-hint { font-size: 11.5px; color: var(--ink-3); line-height: 1.4; margin: 4px 0 6px; }
+@media (max-width: 560px) { .app-shell .dl-menu { position: fixed; left: 12px; right: 12px; top: 120px; width: auto; } }
+
+
+/* ── Alerts: record action, history, node card strip (29 Sept 2026) ── */
+.app-shell .act-list, .modal-backdrop .act-list { display: flex; flex-direction: column; gap: 6px; }
+.modal-backdrop .field .act-option {
+  display: flex; align-items: center; justify-content: flex-start; gap: 10px; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 8px; margin: 0; text-align: left;
+  font-size: 13.5px; font-weight: 500; color: var(--ink); cursor: pointer; background: var(--surface);
+}
+.modal-backdrop .field .act-option.on { border-color: var(--leaf); background: var(--leaf-soft); }
+/* the general .field input rules (full width, border, padding) must not reach the radio buttons */
+.modal-backdrop .field .act-option input[type='radio'] {
+  flex: none; width: 16px; height: 16px; margin: 0; padding: 0; border: none; box-shadow: none;
+  background: none; accent-color: var(--leaf);
+}
+.modal-backdrop .act-note {
+  width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px;
+  font-family: var(--font-ui); font-size: 13.5px; resize: vertical;
+}
+.app-shell .alert-reminder {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600;
+  color: var(--cherry); background: var(--cherry-soft); padding: 2px 7px; border-radius: 6px;
+}
+.app-shell .alert-action { border-left: 3px solid var(--leaf); padding: 2px 0 2px 10px; }
+.app-shell .alert-action strong { font-size: 13.5px; color: var(--leaf); }
+.app-shell .alert-action p { font-size: 13px; margin-top: 3px; }
+.app-shell .node-alert {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  margin-top: 10px; padding: 9px 11px; border-radius: 8px; background: var(--cherry-soft);
+  color: var(--cherry); font-size: 13px; font-weight: 600;
+}
+.app-shell .node-last-action { margin-top: 8px; font-size: 12.5px; color: var(--ink-2); }
+
+/* Banner buttons wrap as whole buttons on phones, never mid-label (3 Oct 2026). */
+.app-shell .banner-row .btn, .app-shell .dl-wrap > .btn { white-space: nowrap; }
+/* Pills (roles, audit actions, risk) keep their words together; tables scroll sideways instead. */
+.app-shell .pill { white-space: nowrap; }
+
+/* ── About CLR risk: collapsed to one line, opens to a short list (4 Oct 2026) ── */
+.app-shell .about-card { padding: 0; }
+.app-shell .about-toggle {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 11px 13px; background: none; border: none; color: inherit; cursor: pointer; text-align: left;
+}
+.app-shell .about-toggle .about-title { margin: 0; }
+.app-shell .about-toggle:hover .about-title { color: #fff; }
+.app-shell .about-toggle:focus-visible { outline: 2px solid #b9d3a3; outline-offset: -2px; border-radius: 8px; }
+.app-shell .about-caret { color: #cfe0c3; transition: transform 0.15s ease; }
+.app-shell .about-card.open .about-caret { transform: rotate(180deg); }
+.app-shell .about-body { padding: 0 13px 12px; }
+.app-shell .about-sub { margin: 2px 0 4px; font-size: 11px; color: rgba(223, 232, 217, 0.6); }
+.app-shell .about-sub + .about-parts, .app-shell .about-sub + .about-bands { margin-bottom: 8px; }
+.app-shell .about-parts, .app-shell .about-bands { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.app-shell .about-parts li, .app-shell .about-bands li { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+.app-shell .about-pts { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: #cfe0c3; }
+.app-shell .about-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.55); }
+@media (prefers-reduced-motion: reduce) { .app-shell .about-caret { transition: none; } }
+
+/* ── Short rules + "more" expanders instead of long paragraphs (4 Oct 2026) ── */
+.app-shell .rule-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.app-shell .rule-chips li {
+  font-size: 12.5px; padding: 5px 10px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.65); border: 1px solid var(--line); color: var(--ink-2);
+}
+.app-shell .rule-chips strong { color: var(--ink); }
+.app-shell details.more { margin-top: 10px; font-size: 12.5px; }
+.app-shell details.more > summary {
+  cursor: pointer; width: fit-content; color: var(--leaf); font-weight: 600; list-style: none;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.app-shell details.more > summary::-webkit-details-marker { display: none; }
+.app-shell details.more > summary::before {
+  content: ''; width: 6px; height: 6px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg); transition: transform 0.15s ease; margin-right: 2px;
+}
+.app-shell details.more[open] > summary::before { transform: rotate(45deg); }
+.app-shell details.more > summary:focus-visible { outline: 2px solid var(--leaf); outline-offset: 3px; border-radius: 4px; }
+.app-shell details.more .auto-rules { margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) { .app-shell details.more > summary::before { transition: none; } }
+
+
+/* ── Analytics: coffee-bean loader while Grafana starts (10 Oct 2026) ── */
+.grafana-wrap { position: relative; flex: 1; min-height: 480px; display: flex; }
+/* hide at once, fade in only when ready */
+.grafana-wrap iframe { flex: 1; border: none; width: 100%; background: #ffffff; opacity: 0; }
+.grafana-wrap iframe.ready { opacity: 1; transition: opacity 0.45s ease; }
+.brew-loader {
+  position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 22px; background: var(--surface);
+}
+.brew-loader.gone { opacity: 0; pointer-events: none; transition: opacity 0.45s ease; }
+.brew-beans { display: flex; align-items: flex-end; gap: 18px; height: 64px; }
+.brew-slot { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 64px; }
+.brew-bean { width: 24px; height: 32px; animation: brew-hop 1.25s cubic-bezier(.45, 0, .3, 1) var(--d, 0s) infinite; }
+.brew-bean-body { fill: var(--coffee); }
+.brew-bean-shine { fill: #ffffff; opacity: 0.16; }
+.brew-bean-crease { fill: none; stroke: var(--coffee-soft); stroke-width: 2.1; stroke-linecap: round; }
+.brew-shadow {
+  width: 22px; height: 5px; margin-top: 4px; border-radius: 50%; background: var(--coffee);
+  opacity: 0.18; animation: brew-shadow 1.25s cubic-bezier(.45, 0, .3, 1) var(--d, 0s) infinite;
+}
+.brew-caption {
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-3); margin: 0;
+}
+.brew-caption::after { content: ''; display: inline-block; width: 1.5em; text-align: left; animation: brew-dots 1.5s steps(4, end) infinite; }
+@keyframes brew-hop {
+  0%, 55%, 100% { transform: translateY(0) rotate(-16deg); }
+  25% { transform: translateY(-22px) rotate(14deg); }
+}
+@keyframes brew-shadow {
+  0%, 55%, 100% { transform: scaleX(1); opacity: 0.2; }
+  25% { transform: scaleX(0.55); opacity: 0.08; }
+}
+@keyframes brew-dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
+@media (prefers-reduced-motion: reduce) {
+  .brew-bean, .brew-shadow, .brew-caption::after { animation: none; }
+  .grafana-wrap iframe, .brew-loader { transition: none; }
+}
+
+/* ── Loader finale: the middle bean is planted and grows into a coffee plant (10 Oct 2026) ── */
+.brew-slot.mid { z-index: 1; }
+.brew-plant {
+  position: absolute; left: 50%; bottom: 31px; width: 64px; height: 83px; overflow: visible;
+  transform: translateX(-50%); pointer-events: none;
+}
+.brew-stem {
+  fill: none; stroke: var(--leaf); stroke-width: 2.8; stroke-linecap: round;
+  stroke-dasharray: 100; stroke-dashoffset: 100; animation: brew-stem 0.7s ease-out 0.2s forwards;
+}
+.brew-leaf {
+  transform-box: fill-box; transform-origin: 0% 60%; transform: scale(0);
+  animation: brew-unfold 0.4s cubic-bezier(.3, 1.45, .5, 1) var(--t, 0.6s) forwards;
+}
+.brew-plant > g:nth-last-of-type(1) .brew-leaf { transform-origin: 50% 100%; }
+.brew-leaf-blade { fill: var(--leaf); }
+.brew-leaf-young { fill: #5f9a4c; }
+.brew-leaf-rib { fill: none; stroke: var(--leaf-soft); stroke-width: 1; stroke-linecap: round; opacity: 0.8; }
+.brew-cherry {
+  fill: var(--cherry); transform-box: fill-box; transform-origin: 50% 50%; transform: scale(0);
+  animation: brew-pop 0.3s cubic-bezier(.3, 1.6, .5, 1) var(--t, 1.3s) forwards;
+}
+.brew-loader.growing .brew-slot:not(.mid) { opacity: 0; transform: translateY(8px) scale(0.7); transition: opacity 0.3s ease, transform 0.3s ease; }
+.brew-loader.growing .mid .brew-bean { animation: brew-settle 0.35s ease-out forwards; }
+.brew-loader.growing .mid .brew-shadow {
+  animation: none; position: relative; z-index: 2; width: 50px; height: 13px; margin-top: -9px;
+  border-radius: 50% 50% 45% 45% / 75% 75% 25% 25%; background: #8a6a4a; opacity: 1;
+  transform: none; transition: width 0.3s ease, height 0.3s ease;
+}
+.brew-caption.still::after { content: ''; animation: none; }
+.brew-caption.still { color: var(--leaf); transition: color 0.3s ease; }
+@keyframes brew-stem { to { stroke-dashoffset: 0; } }
+@keyframes brew-unfold { from { transform: scale(0); } to { transform: scale(var(--s, 1)); } }
+@keyframes brew-pop { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes brew-settle {
+  from { transform: translateY(-6px) rotate(-10deg); }
+  to { transform: translateY(5px) rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brew-stem { animation: none; stroke-dashoffset: 0; }
+  .brew-leaf { animation: none; transform: scale(var(--s, 1)); }
+  .brew-cherry { animation: none; transform: none; }
+}
+
+/* ---- User Manual tab (17 Oct 2026) ---- */
+.app-shell .manual { max-width: 920px; }
+.app-shell .manual-search {
+  min-width: 220px; padding: 8px 12px; border: 1px solid var(--card-border);
+  border-radius: 10px; background: #fff; font: inherit; font-size: 13px; color: var(--text);
+}
+.app-shell .manual-toc { margin-bottom: 18px; }
+.app-shell .manual-toc h3 { margin-bottom: 10px; }
+.app-shell .manual-toc-group + .manual-toc-group { margin-top: 12px; }
+.app-shell .manual-toc .chip { cursor: pointer; font-size: 12.5px; }
+.app-shell .manual-label {
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 6px;
+}
+.app-shell .manual-group { margin-top: 22px; }
+.app-shell .manual-group-title {
+  font-family: var(--font-head); font-size: 18px; font-weight: 600; color: var(--text);
+  margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--card-border);
+}
+.app-shell .manual-section { margin-bottom: 14px; scroll-margin-top: 12px; }
+.app-shell .manual-section-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.app-shell .manual-section-head h3 { margin: 0; display: flex; align-items: center; gap: 10px; }
+.app-shell .manual-num {
+  display: inline-grid; place-items: center; min-width: 26px; height: 26px; border-radius: 50%;
+  background: var(--leaf-soft); color: var(--leaf-deep); font-family: var(--font-mono); font-size: 12px;
+}
+.app-shell .manual-purpose, .app-shell .manual-features { font-size: 13.5px; color: var(--text-2); line-height: 1.55; margin: 0 0 10px; }
+.app-shell .manual-purpose strong, .app-shell .manual-features strong { color: var(--text); }
+.app-shell .manual-steps { margin: 0 0 10px 20px; padding: 0; font-size: 13.5px; line-height: 1.6; color: var(--text); }
+.app-shell .manual-steps li { margin-bottom: 4px; padding-left: 4px; }
+.app-shell .manual-note { margin: 4px 0 0; }
+.app-shell .manual-credit { font-size: 12px; margin: 24px 0 8px; text-align: center; }
+@media (max-width: 640px) {
+  .app-shell .manual-search { width: 100%; min-width: 0; }
+}
+.app-shell .manual-tools { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 14px; }
+.app-shell .manual-book-page { max-width: none; padding-top: 4px; }
+.app-shell .manual-switches { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.app-shell .manual-video { padding: 12px; }
+.app-shell .manual-video video { display: block; width: 100%; aspect-ratio: 16 / 10; background: #1e2a20; border-radius: 10px; }
+.app-shell .manual-video video::cue { font-size: 1.15em; background: rgba(20, 30, 20, 0.82); }
+.app-shell .manual-video-note { font-size: 12px; margin: 10px 4px 2px; }
+
+
+/* ---- Top bar on phones and portrait tablets (17 Oct 2026) ----
+   Below 900 px the sidebar becomes the bottom bar; the top bar used to be
+   hidden there, taking the user's name, profile and the alert bell with it. */
+.app-shell .topbar-brand { display: none; }
+@media (max-width: 899px) {
+  .app-shell .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    height: 56px; padding: 0 14px; position: sticky; top: 0; z-index: 900;
+  }
+  .app-shell .topbar-left { display: none; }
+  .app-shell .topbar-brand {
+    display: flex; align-items: center; gap: 8px; min-width: 0; flex: none;
+    font-family: var(--font-head); font-weight: 600; font-size: 16px; color: var(--ink); white-space: nowrap;
+  }
+  .app-shell .topbar-brand-mark {
+    display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px;
+    background: var(--leaf); color: #dfeccf;
+  }
+  .app-shell .topbar-right { gap: 10px; min-width: 0; }
+  .app-shell .sync > div { display: none; }        /* keep only the live dot */
+  .app-shell .user-chip { min-width: 0; gap: 8px; }
+  .app-shell .user-chip > div:last-child { min-width: 0; }
+  .app-shell .user-name, .app-shell .user-role { max-width: 34vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-shell .avatar { width: 32px; height: 32px; flex: none; }
+}
+@media (max-width: 420px) {
+  .app-shell .topbar-brand > span:last-child { display: none; }   /* mark only on small phones */
+  .app-shell .user-name, .app-shell .user-role { max-width: 42vw; }
+}
+
+
+/* ---- Bell dropdown + phone status line (17 Oct 2026) ---- */
+.app-shell .bell-wrap { position: relative; display: inline-flex; }
+.app-shell .bell.on { background: var(--surface-2); color: var(--ink); }
+.app-shell .bell-badge.new { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px rgba(42, 100, 121, 0.35); }
+.app-shell .notif-panel {
+  position: absolute; top: calc(100% + 10px); right: -8px; width: 380px; max-height: min(70vh, 560px);
+  display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 14px; box-shadow: 0 18px 40px rgba(30, 40, 25, 0.18); z-index: 1000; overflow: hidden;
+}
+.app-shell .notif-head { display: flex; align-items: baseline; justify-content: space-between; padding: 14px 16px 10px;
+  font-family: var(--font-head); font-size: 17px; font-weight: 600; color: var(--ink); border-bottom: 1px solid var(--line); }
+.app-shell .notif-count { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-3); }
+.app-shell .notif-list { overflow-y: auto; flex: 1; }
+.app-shell .notif-empty { display: flex; align-items: center; gap: 8px; justify-content: center; padding: 28px 16px; color: var(--ink-3); }
+.app-shell .notif-item { display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left; background: none;
+  border: 0; border-bottom: 1px solid var(--line); padding: 12px 14px 12px 8px; cursor: pointer; font: inherit; color: inherit; }
+.app-shell .notif-item:hover, .app-shell .notif-item:focus-visible { background: var(--surface-2); outline: none; }
+.app-shell .notif-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 15px; flex: none; background: transparent; }
+.app-shell .notif-dot.on { background: var(--water); }
+.app-shell .notif-icon { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.app-shell .notif-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.app-shell .notif-title { font-weight: 600; font-size: 14px; color: var(--ink); display: flex; gap: 8px; align-items: baseline; }
+.app-shell .notif-level { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; }
+.app-shell .notif-text { font-size: 13px; line-height: 1.4; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.app-shell .notif-meta { font-size: 12px; color: var(--ink-3); }
+.app-shell .notif-all { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 12px; background: none; border: 0;
+  border-top: 1px solid var(--line); font: inherit; font-weight: 600; font-size: 13.5px; color: var(--leaf); cursor: pointer; }
+.app-shell .notif-all:hover { background: var(--surface-2); }
+@keyframes alertFlash { 0%, 100% { box-shadow: var(--shadow); } 30%, 70% { box-shadow: 0 0 0 3px var(--water), var(--shadow); } }
+.app-shell .alert-card.flash { animation: alertFlash 1.3s ease-in-out 2; }
+
+.app-shell .topbar-sub { display: none; }
+@media (max-width: 899px) {
+  .app-shell .topbar-sub {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: sticky; top: 56px; z-index: 899;
+    padding: 6px 14px; background: var(--surface); border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .app-shell .topbar-sub-time { margin-left: auto; text-transform: none; font-size: 11.5px; color: var(--ink); }
+  .app-shell .notif-panel { position: fixed; top: 94px; left: 8px; right: 8px; width: auto; max-height: calc(100vh - 180px); }
+}
+

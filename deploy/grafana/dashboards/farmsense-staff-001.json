@@ -1,0 +1,439 @@
+{
+  "id": null,
+  "uid": "farmsense-staff-001",
+  "title": "FarmSense Brew · Field Staff",
+  "tags": [
+    "farmsense"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "refresh": "2s",
+  "schemaVersion": 39,
+  "version": 1,
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "2s",
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m"
+    ]
+  },
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "fiscalYearStartMonth": 0,
+  "liveNow": false,
+  "panels": [
+    {
+      "id": 20,
+      "type": "stat",
+      "title": "Node status",
+      "description": "Colour = CLR risk of the node's latest reading. Grey = the box is not sending data.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT CONCAT('Node ', CAST(SUBSTRING(sn.node_id, 6) AS UNSIGNED), ' · ', CASE sn.position WHEN 'NW_CORNER' THEN 'NW' WHEN 'NE_CORNER' THEN 'NE' WHEN 'CENTER' THEN 'Centre' WHEN 'SW_CORNER' THEN 'SW' WHEN 'SE_CORNER' THEN 'SE' ELSE sn.position END) AS node, CASE WHEN (lr.id IS NULL OR NOT (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) OR (lr.air_ok = 0 AND lr.soil_ok = 0)) AND ((lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) AND lr.air_ok = 0 AND lr.soil_ok = 0) THEN 6 WHEN (lr.id IS NULL OR NOT (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) OR (lr.air_ok = 0 AND lr.soil_ok = 0)) THEN 0 WHEN lr.temperature IS NULL THEN 7 WHEN lr.clr_risk = 'CRITICAL' THEN 5 WHEN lr.clr_risk = 'HIGH' THEN 4 WHEN lr.clr_risk = 'MODERATE' THEN 3 WHEN lr.clr_risk = 'LOW' THEN 2 ELSE 1 END AS status FROM sensor_nodes sn LEFT JOIN (SELECT node_id, 1 AS id, online, air_ok, soil_ok, temperature, humidity, soil_pct, clr_risk, confidence_pct, COALESCE(values_at, last_seen) AS recorded_at, updated_at FROM node_live) lr ON lr.node_id = sn.node_id WHERE sn.is_active = 1 ORDER BY sn.node_id"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "No nodes registered",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#9CA3AF",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Offline",
+                  "color": "#9CA3AF",
+                  "index": 0
+                },
+                "1": {
+                  "text": "Minimal",
+                  "color": "#22C55E",
+                  "index": 1
+                },
+                "2": {
+                  "text": "Low",
+                  "color": "#84CC16",
+                  "index": 2
+                },
+                "3": {
+                  "text": "Moderate",
+                  "color": "#F59E0B",
+                  "index": 3
+                },
+                "4": {
+                  "text": "High",
+                  "color": "#F97316",
+                  "index": 4
+                },
+                "5": {
+                  "text": "Critical",
+                  "color": "#EF4444",
+                  "index": 5
+                },
+                "6": {
+                  "text": "Both sensors not reading",
+                  "color": "#6B21A8",
+                  "index": 6
+                },
+                "7": {
+                  "text": "DHT22 problem",
+                  "color": "#6B21A8",
+                  "index": 7
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": true,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^status$/"
+        },
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false
+      }
+    },
+    {
+      "id": 21,
+      "type": "table",
+      "title": "What to do at each node",
+      "description": "",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 24,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT CONCAT('Node ', CAST(SUBSTRING(sn.node_id, 6) AS UNSIGNED), ' · ', CASE sn.position WHEN 'NW_CORNER' THEN 'NW' WHEN 'NE_CORNER' THEN 'NE' WHEN 'CENTER' THEN 'Centre' WHEN 'SW_CORNER' THEN 'SW' WHEN 'SE_CORNER' THEN 'SE' ELSE sn.position END) AS `Node`, CASE WHEN (lr.id IS NULL OR NOT (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) OR (lr.air_ok = 0 AND lr.soil_ok = 0)) AND ((lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) AND lr.air_ok = 0 AND lr.soil_ok = 0) THEN 'Both sensors not reading' WHEN (lr.id IS NULL OR NOT (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) OR (lr.air_ok = 0 AND lr.soil_ok = 0)) THEN 'Offline' WHEN lr.temperature IS NULL THEN 'DHT22 problem' WHEN lr.clr_risk = 'CRITICAL' THEN 'Critical' WHEN lr.clr_risk = 'HIGH' THEN 'High' WHEN lr.clr_risk = 'MODERATE' THEN 'Moderate' WHEN lr.clr_risk = 'LOW' THEN 'Low' ELSE 'Minimal' END AS `Status`, CASE WHEN (lr.id IS NULL OR NOT (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) OR (lr.air_ok = 0 AND lr.soil_ok = 0)) AND ((lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) AND lr.air_ok = 0 AND lr.soil_ok = 0) THEN 'SENSOR PROBLEM: the box is on, but neither the DHT22 (temperature and humidity sensor, the white one in the cup) nor the capacitive soil moisture sensor is reading. Check the sensor wires inside the box, then tell the Farm Owner or the System Admin.' WHEN lr.id IS NULL THEN 'OFFLINE: no reading yet. Check the box has power and the WiFi is on, then contact the Farm Owner or the System Admin.' WHEN NOT ((lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND)) THEN 'OFFLINE: the box is not sending data. Check the box has power and the WiFi is on, then contact the Farm Owner or the System Admin.' WHEN lr.temperature IS NULL THEN 'DHT22 PROBLEM: the DHT22 (temperature and humidity sensor, the white one in the cup) is not reading, so there is no disease risk for this node. Soil moisture still works. Check the sensor is dry and its wires are pushed in, then tell the Farm Owner or the System Admin.' WHEN lr.clr_risk IN ('HIGH', 'CRITICAL') AND lr.soil_pct < 35 THEN CONCAT('URGENT: do NOT water here. Disease risk is ', lr.clr_risk, '. Check leaf undersides for yellow-orange spots and report to the agronomist or the Farm Owner.') WHEN lr.clr_risk IN ('HIGH', 'CRITICAL') THEN CONCAT('URGENT: disease risk is ', lr.clr_risk, '. Look for yellow spots on leaves, take photos of suspicious leaves. Do NOT water.') WHEN lr.soil_pct IS NULL THEN 'SOIL SENSOR PROBLEM: the capacitive soil moisture sensor is not reading. Check it is pushed into the soil and its wires are in, then tell the Farm Owner or the System Admin.' WHEN lr.soil_pct < 30 THEN 'ACTION: soil is very dry. Check that the drip lines are running and not clogged, then report.' WHEN lr.soil_pct < 35 THEN 'ACTION: soil is getting dry. Check the drip lines on your next walk.' WHEN lr.clr_risk = 'MODERATE' THEN 'AT RISK: conditions may worsen. Look for unusual leaf spots on your next check.' WHEN lr.clr_risk = 'LOW' THEN 'WATCH: some conditions favour leaf rust, but the leaves are likely dry. Continue regular checks.' ELSE 'ALL GOOD: continue regular monitoring.' END AS `What to do` FROM sensor_nodes sn LEFT JOIN (SELECT node_id, 1 AS id, online, air_ok, soil_ok, temperature, humidity, soil_pct, clr_risk, confidence_pct, COALESCE(values_at, last_seen) AS recorded_at, updated_at FROM node_live) lr ON lr.node_id = sn.node_id WHERE sn.is_active = 1 ORDER BY sn.node_id"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "Nothing yet",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "Offline": {
+                        "color": "#9CA3AF",
+                        "index": 0
+                      },
+                      "Minimal": {
+                        "color": "#22C55E",
+                        "index": 1
+                      },
+                      "Low": {
+                        "color": "#84CC16",
+                        "index": 2
+                      },
+                      "Moderate": {
+                        "color": "#F59E0B",
+                        "index": 3
+                      },
+                      "High": {
+                        "color": "#F97316",
+                        "index": 4
+                      },
+                      "Critical": {
+                        "color": "#EF4444",
+                        "index": 5
+                      },
+                      "Both sensors not reading": {
+                        "color": "#6B21A8",
+                        "index": 6
+                      },
+                      "DHT22 problem": {
+                        "color": "#6B21A8",
+                        "index": 7
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Node"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "md",
+        "footer": {
+          "show": false
+        }
+      }
+    },
+    {
+      "id": 22,
+      "type": "bargauge",
+      "title": "Soil moisture now",
+      "description": "Red below 30 %, orange below 35 %. Empty = node offline.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 15,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT CONCAT('Node ', CAST(SUBSTRING(sn.node_id, 6) AS UNSIGNED), ' · ', CASE sn.position WHEN 'NW_CORNER' THEN 'NW' WHEN 'NE_CORNER' THEN 'NE' WHEN 'CENTER' THEN 'Centre' WHEN 'SW_CORNER' THEN 'SW' WHEN 'SE_CORNER' THEN 'SE' ELSE sn.position END) AS node, CASE WHEN (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) THEN lr.soil_pct END AS soil FROM sensor_nodes sn LEFT JOIN (SELECT node_id, 1 AS id, online, air_ok, soil_ok, temperature, humidity, soil_pct, clr_risk, confidence_pct, COALESCE(values_at, last_seen) AS recorded_at, updated_at FROM node_live) lr ON lr.node_id = sn.node_id WHERE sn.is_active = 1 ORDER BY sn.node_id"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 0,
+          "min": 0,
+          "max": 100,
+          "noValue": "Waiting for readings",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#EF4444",
+                "value": null
+              },
+              {
+                "color": "#F59E0B",
+                "value": 30
+              },
+              {
+                "color": "#22C55E",
+                "value": 35
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": true,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^soil$/"
+        },
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "valueMode": "color",
+        "showUnfilled": true,
+        "namePlacement": "left",
+        "sizing": "auto",
+        "minVizHeight": 16,
+        "maxVizHeight": 34
+      }
+    },
+    {
+      "id": 23,
+      "type": "bargauge",
+      "title": "Humidity now",
+      "description": "Red = above 80 %, which favours leaf rust. Empty = node offline.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 15,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT CONCAT('Node ', CAST(SUBSTRING(sn.node_id, 6) AS UNSIGNED), ' · ', CASE sn.position WHEN 'NW_CORNER' THEN 'NW' WHEN 'NE_CORNER' THEN 'NE' WHEN 'CENTER' THEN 'Centre' WHEN 'SW_CORNER' THEN 'SW' WHEN 'SE_CORNER' THEN 'SE' ELSE sn.position END) AS node, CASE WHEN (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) THEN lr.humidity END AS humidity FROM sensor_nodes sn LEFT JOIN (SELECT node_id, 1 AS id, online, air_ok, soil_ok, temperature, humidity, soil_pct, clr_risk, confidence_pct, COALESCE(values_at, last_seen) AS recorded_at, updated_at FROM node_live) lr ON lr.node_id = sn.node_id WHERE sn.is_active = 1 ORDER BY sn.node_id"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 0,
+          "min": 0,
+          "max": 100,
+          "noValue": "Waiting for readings",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#22C55E",
+                "value": null
+              },
+              {
+                "color": "#EF4444",
+                "value": 80.01
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": true,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^humidity$/"
+        },
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "valueMode": "color",
+        "showUnfilled": true,
+        "namePlacement": "left",
+        "sizing": "auto",
+        "minVizHeight": 16,
+        "maxVizHeight": 34
+      }
+    },
+    {
+      "id": 24,
+      "type": "text",
+      "title": "",
+      "description": "",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 23,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Colours:** 🟢 Minimal (Healthy) and Low (Watch), routine care · 🟠 Moderate (At Risk), check again soon · 🔴 High (Severe) and Critical, do NOT water and inspect leaves · ⚪ Grey, the node is offline (check its power and WiFi) · 🟣 Purple **DHT22 problem**, the box is on but its temperature and humidity sensor is not reading (no disease risk shown); a soil sensor problem is named in the What to do column."
+      }
+    }
+  ]
+}

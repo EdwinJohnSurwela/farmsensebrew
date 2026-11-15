@@ -1,0 +1,18 @@
+# Provisioned default datasource — panels resolve to this automatically.
+apiVersion: 1
+
+datasources:
+  - name: mysql
+    uid: fflcm0ubrdqtcf
+    type: mysql
+    access: proxy
+    url: mysql:3306
+    user: root
+    isDefault: true
+    jsonData:
+      database: farmsense_db
+      maxOpenConns: 100
+      maxIdleConns: 100
+      connMaxLifetime: 14400
+    secureJsonData:
+      password: ${GF_MYSQL_PASSWORD}

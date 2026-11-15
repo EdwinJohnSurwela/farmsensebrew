@@ -1,0 +1,1236 @@
+{
+  "id": null,
+  "uid": "farmsense-agro-001",
+  "title": "FarmSense Brew · Agronomist",
+  "tags": [
+    "farmsense"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "refresh": "2s",
+  "schemaVersion": 39,
+  "version": 1,
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "2s",
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m"
+    ]
+  },
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "fiscalYearStartMonth": 0,
+  "liveNow": false,
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Avg temperature",
+      "description": "Latest reading of each online node. Orange = inside the 21 to 25 °C rust range.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT ROUND(AVG(lr.temperature), 1) AS value FROM sensor_nodes sn JOIN (SELECT node_id, 1 AS id, online, air_ok, soil_ok, temperature, humidity, soil_pct, clr_risk, confidence_pct, COALESCE(values_at, last_seen) AS recorded_at, updated_at FROM node_live) lr ON lr.node_id = sn.node_id WHERE sn.is_active = 1 AND (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "noValue": "Waiting for readings",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#22C55E",
+                "value": null
+              },
+              {
+                "color": "#F59E0B",
+                "value": 21
+              },
+              {
+                "color": "#22C55E",
+                "value": 25.01
+              }
+            ]
+          },
+          "mappings": [],
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Avg humidity",
+      "description": "Latest reading of each online node. Red = above the 80 % rust threshold.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT ROUND(AVG(lr.humidity), 0) AS value FROM sensor_nodes sn JOIN (SELECT node_id, 1 AS id, online, air_ok, soil_ok, temperature, humidity, soil_pct, clr_risk, confidence_pct, COALESCE(values_at, last_seen) AS recorded_at, updated_at FROM node_live) lr ON lr.node_id = sn.node_id WHERE sn.is_active = 1 AND (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "Waiting for readings",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#22C55E",
+                "value": null
+              },
+              {
+                "color": "#EF4444",
+                "value": 80.01
+              }
+            ]
+          },
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Avg soil moisture",
+      "description": "Latest reading of each online node. Red below 30 %, orange below 35 %.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT ROUND(AVG(lr.soil_pct), 0) AS value FROM sensor_nodes sn JOIN (SELECT node_id, 1 AS id, online, air_ok, soil_ok, temperature, humidity, soil_pct, clr_risk, confidence_pct, COALESCE(values_at, last_seen) AS recorded_at, updated_at FROM node_live) lr ON lr.node_id = sn.node_id WHERE sn.is_active = 1 AND (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "Waiting for readings",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#EF4444",
+                "value": null
+              },
+              {
+                "color": "#F59E0B",
+                "value": 30
+              },
+              {
+                "color": "#22C55E",
+                "value": 35
+              }
+            ]
+          },
+          "mappings": [],
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Nodes online",
+      "description": "Online = the box is sending data right now (same as the web app).",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT SUM(CASE WHEN lr.id IS NOT NULL AND (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) THEN 1 ELSE 0 END) AS `Online`, COUNT(*) AS `Registered` FROM sensor_nodes sn LEFT JOIN (SELECT node_id, 1 AS id, online, air_ok, soil_ok, temperature, humidity, soil_pct, clr_risk, confidence_pct, COALESCE(values_at, last_seen) AS recorded_at, updated_at FROM node_live) lr ON lr.node_id = sn.node_id WHERE sn.is_active = 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "Waiting for readings",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#3B82F6",
+                "value": null
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Online"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#22C55E"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Registered"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#9CA3AF"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Node status",
+      "description": "Colour = CLR risk of the node's latest reading. Grey = the box is not sending data.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 16,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT CONCAT('Node ', CAST(SUBSTRING(sn.node_id, 6) AS UNSIGNED), ' · ', CASE sn.position WHEN 'NW_CORNER' THEN 'NW' WHEN 'NE_CORNER' THEN 'NE' WHEN 'CENTER' THEN 'Centre' WHEN 'SW_CORNER' THEN 'SW' WHEN 'SE_CORNER' THEN 'SE' ELSE sn.position END) AS node, CASE WHEN (lr.id IS NULL OR NOT (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) OR (lr.air_ok = 0 AND lr.soil_ok = 0)) AND ((lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) AND lr.air_ok = 0 AND lr.soil_ok = 0) THEN 6 WHEN (lr.id IS NULL OR NOT (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) OR (lr.air_ok = 0 AND lr.soil_ok = 0)) THEN 0 WHEN lr.temperature IS NULL THEN 7 WHEN lr.clr_risk = 'CRITICAL' THEN 5 WHEN lr.clr_risk = 'HIGH' THEN 4 WHEN lr.clr_risk = 'MODERATE' THEN 3 WHEN lr.clr_risk = 'LOW' THEN 2 ELSE 1 END AS status FROM sensor_nodes sn LEFT JOIN (SELECT node_id, 1 AS id, online, air_ok, soil_ok, temperature, humidity, soil_pct, clr_risk, confidence_pct, COALESCE(values_at, last_seen) AS recorded_at, updated_at FROM node_live) lr ON lr.node_id = sn.node_id WHERE sn.is_active = 1 ORDER BY sn.node_id"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "No nodes registered",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#9CA3AF",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Offline",
+                  "color": "#9CA3AF",
+                  "index": 0
+                },
+                "1": {
+                  "text": "Minimal",
+                  "color": "#22C55E",
+                  "index": 1
+                },
+                "2": {
+                  "text": "Low",
+                  "color": "#84CC16",
+                  "index": 2
+                },
+                "3": {
+                  "text": "Moderate",
+                  "color": "#F59E0B",
+                  "index": 3
+                },
+                "4": {
+                  "text": "High",
+                  "color": "#F97316",
+                  "index": 4
+                },
+                "5": {
+                  "text": "Critical",
+                  "color": "#EF4444",
+                  "index": 5
+                },
+                "6": {
+                  "text": "Both sensors not reading",
+                  "color": "#6B21A8",
+                  "index": 6
+                },
+                "7": {
+                  "text": "DHT22 problem",
+                  "color": "#6B21A8",
+                  "index": 7
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": true,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^status$/"
+        },
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "wideLayout": true,
+        "showPercentChange": false
+      }
+    },
+    {
+      "id": 6,
+      "type": "gauge",
+      "title": "Farm CLR risk score",
+      "description": "Average CLR score (0 to 100) of the online nodes. Bands: 0-20 Minimal, 21-40 Low, 41-60 Moderate, 61-80 High, 81-100 Critical.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 4,
+        "w": 8,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT ROUND(AVG(lr.confidence_pct), 0) AS value FROM sensor_nodes sn JOIN (SELECT node_id, 1 AS id, online, air_ok, soil_ok, temperature, humidity, soil_pct, clr_risk, confidence_pct, COALESCE(values_at, last_seen) AS recorded_at, updated_at FROM node_live) lr ON lr.node_id = sn.node_id WHERE sn.is_active = 1 AND (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "min": 0,
+          "max": 100,
+          "noValue": "Waiting for readings",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#22C55E",
+                "value": null
+              },
+              {
+                "color": "#84CC16",
+                "value": 21
+              },
+              {
+                "color": "#F59E0B",
+                "value": 41
+              },
+              {
+                "color": "#F97316",
+                "value": 61
+              },
+              {
+                "color": "#EF4444",
+                "value": 81
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Temperature by node",
+      "description": "Dashed lines: the 21 to 25 °C rust range.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 10,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "time_series",
+          "rawSql": "SELECT $__timeGroupAlias(recorded_at, '5m'), CONCAT('Node ', CAST(SUBSTRING(node_id, 6) AS UNSIGNED)) AS metric, ROUND(AVG(temperature), 1) AS value FROM sensor_readings WHERE $__timeFilter(recorded_at) GROUP BY 1, 2 ORDER BY 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "noValue": "Waiting for readings",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "showPoints": "never",
+            "spanNulls": 600000,
+            "axisBorderShow": false,
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "#F59E0B",
+                "value": 21
+              },
+              {
+                "color": "#F59E0B",
+                "value": 25
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Humidity by node",
+      "description": "Dashed line: the 80 % rust threshold.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 10,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "time_series",
+          "rawSql": "SELECT $__timeGroupAlias(recorded_at, '5m'), CONCAT('Node ', CAST(SUBSTRING(node_id, 6) AS UNSIGNED)) AS metric, ROUND(AVG(humidity), 0) AS value FROM sensor_readings WHERE $__timeFilter(recorded_at) GROUP BY 1, 2 ORDER BY 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "Waiting for readings",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "showPoints": "never",
+            "spanNulls": 600000,
+            "axisBorderShow": false,
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "#EF4444",
+                "value": 80
+              }
+            ]
+          },
+          "decimals": 0,
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Soil moisture by node",
+      "description": "",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "time_series",
+          "rawSql": "SELECT $__timeGroupAlias(recorded_at, '5m'), CONCAT('Node ', CAST(SUBSTRING(node_id, 6) AS UNSIGNED)) AS metric, ROUND(AVG(soil_pct), 0) AS value FROM sensor_readings WHERE $__timeFilter(recorded_at) GROUP BY 1, 2 ORDER BY 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "Waiting for readings",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "showPoints": "never",
+            "spanNulls": 600000,
+            "axisBorderShow": false,
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "#EF4444",
+                "value": 30
+              },
+              {
+                "color": "#F59E0B",
+                "value": 35
+              }
+            ]
+          },
+          "decimals": 0,
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "CLR risk score by node",
+      "description": "Dashed lines: 41 Moderate, 61 High, 81 Critical.",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 18,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "time_series",
+          "rawSql": "SELECT $__timeGroupAlias(recorded_at, '5m'), CONCAT('Node ', CAST(SUBSTRING(node_id, 6) AS UNSIGNED)) AS metric, ROUND(AVG(confidence_pct), 0) AS value FROM sensor_readings WHERE $__timeFilter(recorded_at) GROUP BY 1, 2 ORDER BY 1"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "Waiting for readings",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "showPoints": "never",
+            "spanNulls": 600000,
+            "axisBorderShow": false,
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "#F59E0B",
+                "value": 41
+              },
+              {
+                "color": "#F97316",
+                "value": 61
+              },
+              {
+                "color": "#EF4444",
+                "value": 81
+              }
+            ]
+          },
+          "decimals": 0,
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "type": "bargauge",
+      "title": "Hours in the rust range",
+      "description": "Time each node spent at 21 to 25 °C with humidity above 80 % in the selected period (5-minute slots).",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 26,
+        "w": 10,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT CONCAT('Node ', CAST(SUBSTRING(sn.node_id, 6) AS UNSIGNED), ' · ', CASE sn.position WHEN 'NW_CORNER' THEN 'NW' WHEN 'NE_CORNER' THEN 'NE' WHEN 'CENTER' THEN 'Centre' WHEN 'SW_CORNER' THEN 'SW' WHEN 'SE_CORNER' THEN 'SE' ELSE sn.position END) AS node, IFNULL(ROUND(x.slots * 5 / 60, 1), 0) AS hours FROM sensor_nodes sn LEFT JOIN (SELECT node_id, COUNT(DISTINCT FLOOR(UNIX_TIMESTAMP(recorded_at) / 300)) AS slots FROM sensor_readings WHERE $__timeFilter(recorded_at) AND temperature BETWEEN 21 AND 25 AND humidity > 80 GROUP BY node_id) x ON x.node_id = sn.node_id WHERE sn.is_active = 1 ORDER BY sn.node_id"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "h",
+          "decimals": 1,
+          "min": 0,
+          "max": 24,
+          "noValue": "Waiting for readings",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#F59E0B",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": true,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^hours$/"
+        },
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "valueMode": "color",
+        "showUnfilled": true,
+        "namePlacement": "left",
+        "sizing": "auto",
+        "minVizHeight": 16,
+        "maxVizHeight": 34
+      }
+    },
+    {
+      "id": 12,
+      "type": "table",
+      "title": "Latest reading per node",
+      "description": "",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 10,
+        "y": 26,
+        "w": 14,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT CONCAT('Node ', CAST(SUBSTRING(sn.node_id, 6) AS UNSIGNED), ' · ', CASE sn.position WHEN 'NW_CORNER' THEN 'NW' WHEN 'NE_CORNER' THEN 'NE' WHEN 'CENTER' THEN 'Centre' WHEN 'SW_CORNER' THEN 'SW' WHEN 'SE_CORNER' THEN 'SE' ELSE sn.position END) AS `Node`, CASE WHEN (lr.id IS NULL OR NOT (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) OR (lr.air_ok = 0 AND lr.soil_ok = 0)) AND ((lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) AND lr.air_ok = 0 AND lr.soil_ok = 0) THEN 'Both sensors not reading' WHEN (lr.id IS NULL OR NOT (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) OR (lr.air_ok = 0 AND lr.soil_ok = 0)) THEN 'Offline' WHEN lr.temperature IS NULL THEN 'DHT22 problem' WHEN lr.clr_risk = 'CRITICAL' THEN 'Critical' WHEN lr.clr_risk = 'HIGH' THEN 'High' WHEN lr.clr_risk = 'MODERATE' THEN 'Moderate' WHEN lr.clr_risk = 'LOW' THEN 'Low' ELSE 'Minimal' END AS `Status`, CASE WHEN (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) THEN lr.temperature END AS `Temp`, CASE WHEN (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) THEN lr.humidity END AS `Humidity`, CASE WHEN (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) THEN lr.soil_pct END AS `Soil`, CASE WHEN (lr.online = 1 AND lr.updated_at >= NOW() - INTERVAL 15 SECOND) THEN lr.confidence_pct END AS `CLR score`, UNIX_TIMESTAMP(lr.recorded_at) * 1000 AS `Last reading` FROM sensor_nodes sn LEFT JOIN (SELECT node_id, 1 AS id, online, air_ok, soil_ok, temperature, humidity, soil_pct, clr_risk, confidence_pct, COALESCE(values_at, last_seen) AS recorded_at, updated_at FROM node_live) lr ON lr.node_id = sn.node_id WHERE sn.is_active = 1 ORDER BY sn.node_id"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "Nothing yet",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "Offline": {
+                        "color": "#9CA3AF",
+                        "index": 0
+                      },
+                      "Minimal": {
+                        "color": "#22C55E",
+                        "index": 1
+                      },
+                      "Low": {
+                        "color": "#84CC16",
+                        "index": 2
+                      },
+                      "Moderate": {
+                        "color": "#F59E0B",
+                        "index": 3
+                      },
+                      "High": {
+                        "color": "#F97316",
+                        "index": 4
+                      },
+                      "Critical": {
+                        "color": "#EF4444",
+                        "index": 5
+                      },
+                      "Both sensors not reading": {
+                        "color": "#6B21A8",
+                        "index": 6
+                      },
+                      "DHT22 problem": {
+                        "color": "#6B21A8",
+                        "index": 7
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Last reading"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeFromNow"
+              },
+              {
+                "id": "noValue",
+                "value": "No readings yet"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Temp"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "celsius"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Humidity"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Soil"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CLR score"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "md",
+        "footer": {
+          "show": false
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": "table",
+      "title": "Recent CLR alerts",
+      "description": "",
+      "datasource": {
+        "type": "mysql",
+        "uid": "fflcm0ubrdqtcf"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 34,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "mysql",
+            "uid": "fflcm0ubrdqtcf"
+          },
+          "editorMode": "code",
+          "rawQuery": true,
+          "format": "table",
+          "rawSql": "SELECT ca.created_at AS `Time`, CONCAT('Node ', CAST(SUBSTRING(ca.node_id, 6) AS UNSIGNED)) AS `Node`, CONCAT(UPPER(LEFT(ca.risk_level, 1)), LOWER(SUBSTRING(ca.risk_level, 2))) AS `Status`, CONCAT(ca.temperature, ' °C · ', ca.humidity, ' % · soil ', ca.soil_pct, ' %') AS `Readings`, ca.alert_message AS `Message`, IF(ca.is_resolved, 'Resolved', 'Open') AS `State` FROM clr_alerts ca WHERE $__timeFilter(ca.created_at) ORDER BY ca.created_at DESC LIMIT 50"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "No alerts in this period",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "Offline": {
+                        "color": "#9CA3AF",
+                        "index": 0
+                      },
+                      "Minimal": {
+                        "color": "#22C55E",
+                        "index": 1
+                      },
+                      "Low": {
+                        "color": "#84CC16",
+                        "index": 2
+                      },
+                      "Moderate": {
+                        "color": "#F59E0B",
+                        "index": 3
+                      },
+                      "High": {
+                        "color": "#F97316",
+                        "index": 4
+                      },
+                      "Critical": {
+                        "color": "#EF4444",
+                        "index": 5
+                      },
+                      "Both sensors not reading": {
+                        "color": "#6B21A8",
+                        "index": 6
+                      },
+                      "DHT22 problem": {
+                        "color": "#6B21A8",
+                        "index": 7
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "md",
+        "footer": {
+          "show": false
+        }
+      }
+    }
+  ]
+}

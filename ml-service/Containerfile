@@ -1,0 +1,14 @@
+# FarmSense Brew — ML service container (FB-51)
+# Train first (python train.py) so model.joblib + metrics.json exist,
+# then:  podman build -t farmsense-ml ./ml-service
+FROM docker.io/library/python:3.12-slim
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app.py train.py ./
+COPY model.joblib metrics.json ./
+
+EXPOSE 5000
+CMD ["python", "-m", "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5000"]

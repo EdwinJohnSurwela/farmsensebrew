@@ -1,0 +1,8 @@
+backend/node_modules
+backend/.env
+backend/data
+webapp/node_modules
+webapp/dist
+deploy/initdb
+**/*.log
+.git

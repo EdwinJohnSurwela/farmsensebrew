@@ -1,0 +1,19 @@
+/* Field staff Overview, node card next to the map (see staff-card-fit.js).
+   The script sets --fit (1 = original size) on two-column screens. */
+@media (min-width: 761px) {
+  .app-shell .grid-2 > .card.node-card.fit { overflow: hidden; gap: calc(16px * var(--fit)); }
+  .app-shell .node-card.fit .node-card-head h3 { font-size: calc(23px * var(--fit)); }
+  .app-shell .node-card.fit .eyebrow { font-size: calc(11px * var(--fit)); }
+  .app-shell .node-card.fit .risk-chip { font-size: calc(11px * var(--fit)); padding: calc(3px * var(--fit)) calc(8px * var(--fit)); }
+  .app-shell .node-card.fit .node-readings { gap: calc(10px * var(--fit)); }
+  .app-shell .node-card.fit .node-reading { padding: calc(10px * var(--fit)) calc(12px * var(--fit)); }
+  .app-shell .node-card.fit .node-reading-value { font-size: calc(32px * var(--fit)); margin-top: calc(6px * var(--fit)); }
+  .app-shell .node-card.fit .kpi-unit { font-size: calc(14px * var(--fit)); }
+  .app-shell .node-card.fit .node-action { justify-content: center; gap: calc(8px * var(--fit)); padding: calc(14px * var(--fit)) calc(16px * var(--fit)); }
+  .app-shell .node-card.fit .node-action p { font-size: calc(15px * var(--fit)); }
+  .app-shell .node-card.fit .node-action-tag { font-size: calc(12px * var(--fit)); }
+  .app-shell .node-card.fit .node-alert { font-size: calc(13px * var(--fit)); }
+  .app-shell .node-card.fit .node-alert .btn { font-size: calc(13px * min(var(--fit), 1.6)); }
+  .app-shell .node-card.fit .node-last-action { font-size: calc(12.5px * var(--fit)); }
+  .app-shell .node-card.fit svg { width: calc(14px * var(--fit)); height: calc(14px * var(--fit)); }
+}
