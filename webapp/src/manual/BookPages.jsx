@@ -190,7 +190,7 @@ function Section({ p, L }) {
       {p.shot && (
         <figure className="mb-fig">
           <img src={shotUrl(p.shot)} alt={s.screen} loading="lazy" />
-          <figcaption><b>{L.figure} {p.fig}.</b> {s.screen}. {L.caption}</figcaption>
+          <figcaption><b>{L.figure} {p.fig}.</b> {s.screen}. {s.capt || L.caption}</figcaption>
         </figure>
       )}
       {showIntro && (

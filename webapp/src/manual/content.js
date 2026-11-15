@@ -490,6 +490,160 @@ const DOWNLOADS = {
   },
 };
 
+// ------------------------------------------------------------ hardware (System Admin and Farm Owner)
+// How to build a sensor box, set up its post and connect it to the system.
+// Asked for by the panel at the final defense (5 Nov 2026).
+const HW_BOX = {
+  id: 'hw-box',
+  shots: ['hw-01-sensor-box', 'hw-02-wiring'],
+  en: {
+    title: 'Hardware: building a sensor box', screen: 'Sensor box',
+    capt: 'Drawing of the installed design (3D model and wiring diagram).',
+    purpose: 'Build a new sensor box the same way as the five boxes at the plot, so it works with the system and stays dry.',
+    steps: [
+      'Parts for one box: ESP32 DevKit (30-pin), LM2596 buck converter (12 V to 5 V), SHT31 probe, capacitive soil moisture sensor v2.0, clear-lid IP65 box (100 x 68 mm) with three cable glands, a silica gel packet and a 2 A inline fuse on its 12 V run.',
+      'Set the buck converter to 5 V and measure it with a multimeter BEFORE connecting the ESP32. 12 V or 220 V on the ESP32 destroys it.',
+      'Buck converter: 12 V in to IN+ and IN-; OUT+ (5 V) to the ESP32 VIN pin; OUT- to GND.',
+      'SHT31 probe: red to 3V3, black to GND, green (SDA) to D21, yellow (SCL) to D22.',
+      'Soil probe: AOUT to D34, VCC to D25 (the board switches the probe on only while it reads), GND to GND.',
+      'Bring every cable in through a gland on the bottom of the box, tighten the gland and seal it with neutral-cure silicone.',
+      'Press the rubber cord into the groove inside the lid all the way round, put a silica gel packet inside and screw the lid down evenly.',
+      'Seal the top of the soil probe (the board and connector above the printed line) with conformal coating, then liquid electrical tape.',
+    ],
+    features: 'Every box is built the same way, so a new box needs no change to the server or the web app.',
+    note: 'Do not flash or power a box with the lid off in the rain. Keep spare boxes dry until they are installed.',
+  },
+  tl: {
+    title: 'Hardware: paggawa ng sensor box', screen: 'Sensor box',
+    capt: 'Drawing ng naka-install na disenyo (3D model at wiring diagram).',
+    purpose: 'Gumawa ng bagong sensor box na kapareho ng limang box sa plot, para gumana sa system at hindi pasukin ng tubig.',
+    steps: [
+      'Piyesa ng isang box: ESP32 DevKit (30-pin), LM2596 buck converter (12 V papuntang 5 V), SHT31 probe, capacitive soil moisture sensor v2.0, IP65 na kahon na may malinaw na takip (100 x 68 mm) na may tatlong cable gland, isang silica gel at 2 A na fuse sa 12 V na linya nito.',
+      'I-set sa 5 V ang buck converter at sukatin gamit ang multimeter BAGO ikabit ang ESP32. Masisira ang ESP32 kapag 12 V o 220 V ang pumasok.',
+      'Buck converter: 12 V papasok sa IN+ at IN-; OUT+ (5 V) sa VIN ng ESP32; OUT- sa GND.',
+      'SHT31 probe: pula sa 3V3, itim sa GND, berde (SDA) sa D21, dilaw (SCL) sa D22.',
+      'Soil probe: AOUT sa D34, VCC sa D25 (binubuksan lang ng board ang probe habang nagbabasa), GND sa GND.',
+      'Ipasok ang bawat kable sa gland sa ilalim ng kahon, higpitan ang gland at lagyan ng neutral-cure na silicone.',
+      'Idiin ang rubber na tali sa uka sa loob ng takip nang buong ikot, maglagay ng silica gel sa loob at i-turnilyo nang pantay ang takip.',
+      'Takpan ang itaas ng soil probe (ang board at connector sa itaas ng guhit) ng conformal coating, tapos ng liquid electrical tape.',
+    ],
+    features: 'Pare-pareho ang paggawa ng bawat box, kaya walang kailangang baguhin sa server o sa web app para sa bagong box.',
+    note: 'Huwag i-flash o paandarin ang box nang bukas ang takip habang umuulan. Itago nang tuyo ang mga ekstrang box hanggang ikabit.',
+  },
+  taglish: {
+    title: 'Hardware: pag-build ng sensor box', screen: 'Sensor box',
+    capt: 'Drawing ng installed na design (3D model at wiring diagram).',
+    purpose: 'Mag-build ng bagong sensor box na same sa limang box sa plot, para gumana sa system at hindi mabasa.',
+    steps: [
+      'Parts ng isang box: ESP32 DevKit (30-pin), LM2596 buck converter (12 V to 5 V), SHT31 probe, capacitive soil moisture sensor v2.0, clear-lid IP65 box (100 x 68 mm) na may tatlong cable glands, isang silica gel at 2 A inline fuse sa 12 V run nito.',
+      'I-set sa 5 V ang buck converter at i-check gamit ang multimeter BEFORE ikabit ang ESP32. Masisira ang ESP32 kapag 12 V o 220 V ang pumasok.',
+      'Buck converter: 12 V in sa IN+ at IN-; OUT+ (5 V) sa VIN ng ESP32; OUT- sa GND.',
+      'SHT31 probe: red sa 3V3, black sa GND, green (SDA) sa D21, yellow (SCL) sa D22.',
+      'Soil probe: AOUT sa D34, VCC sa D25 (ino-on lang ng board ang probe habang nagre-read), GND sa GND.',
+      'Ipasok ang bawat cable sa gland sa bottom ng box, higpitan ang gland at i-seal ng neutral-cure silicone.',
+      'I-press ang rubber cord sa groove sa loob ng lid nang buong ikot, maglagay ng silica gel sa loob at i-screw nang pantay ang lid.',
+      'I-seal ang top ng soil probe (board at connector above the printed line) ng conformal coating, tapos liquid electrical tape.',
+    ],
+    features: 'Same ang build ng bawat box, kaya walang babaguhin sa server o web app para sa new box.',
+    note: 'Huwag i-flash o i-power ang box nang open ang lid habang umuulan. Keep dry ang spare boxes hanggang ma-install.',
+  },
+};
+
+const HW_POST = {
+  id: 'hw-post',
+  shots: ['hw-03-post'],
+  en: {
+    title: 'Hardware: setting up the post at the plot', screen: 'Sensor post',
+    capt: 'Drawing of the installed design (3D model).',
+    purpose: 'Mount a sensor box on its post so the air and soil readings match the other nodes.',
+    steps: [
+      'Use a bamboo post about 2 m long, buried about 50 cm, at the spot planned for the node.',
+      'Fix the sensor box to the post about 45 cm above the ground with its cable holes facing down, and leave a drip loop in each cable.',
+      'Hang the SHT31 probe inside the upside-down white plant pot at the end of the PVC arm, so sun and rain cannot reach it but air can.',
+      'Push the soil probe into the root zone of the nearest coffee plant, about 25 cm from the post, only down to its printed line.',
+      'Run the 12 V cable from its own fused output in the power box. Check the polarity at the post before plugging the box in.',
+    ],
+    features: 'Shade and the distance to the plant change the readings, so place a new post like the existing ones.',
+    note: 'Never bring 220 V to the plot. Only the power box turns 220 V into 12 V.',
+  },
+  tl: {
+    title: 'Hardware: pagkabit ng poste sa plot', screen: 'Sensor post',
+    capt: 'Drawing ng naka-install na disenyo (3D model).',
+    purpose: 'Ikabit ang sensor box sa poste para tumugma ang reading ng hangin at lupa sa ibang node.',
+    steps: [
+      'Gumamit ng kawayan na mga 2 m ang haba, nakabaon nang mga 50 cm, sa puwestong plinano para sa node.',
+      'Ikabit ang sensor box sa poste mga 45 cm mula sa lupa, nakaharap pababa ang butas ng kable, at mag-iwan ng drip loop sa bawat kable.',
+      'Isabit ang SHT31 sa loob ng nakataob na puting paso sa dulo ng PVC na braso, para hindi maarawan o maulanan pero may hangin.',
+      'Ibaon ang soil probe sa ugat ng pinakamalapit na kape, mga 25 cm mula sa poste, hanggang sa guhit lang nito.',
+      'Kunin ang 12 V na kable sa sarili nitong fuse sa power box. Tingnan ang polarity sa poste bago isaksak ang box.',
+    ],
+    features: 'Nagbabago ang reading depende sa lilim at layo sa halaman, kaya ilagay ang bagong poste katulad ng mga nauna.',
+    note: 'Huwag magdala ng 220 V sa plot. Ang power box lang ang nagpapalit ng 220 V papuntang 12 V.',
+  },
+  taglish: {
+    title: 'Hardware: pag-setup ng post sa plot', screen: 'Sensor post',
+    capt: 'Drawing ng installed na design (3D model).',
+    purpose: 'I-mount ang sensor box sa post para mag-match ang air at soil readings sa ibang nodes.',
+    steps: [
+      'Gumamit ng bamboo post na mga 2 m ang haba, nakabaon nang mga 50 cm, sa spot na planned para sa node.',
+      'I-fix ang sensor box sa post mga 45 cm above the ground, facing down ang cable holes, at mag-iwan ng drip loop sa bawat cable.',
+      'Isabit ang SHT31 probe sa loob ng upside-down na white plant pot sa dulo ng PVC arm, para walang araw at ulan pero may hangin.',
+      'Ibaon ang soil probe sa root zone ng pinakamalapit na coffee plant, mga 25 cm from the post, hanggang printed line lang.',
+      'Kunin ang 12 V cable sa sarili nitong fused output sa power box. I-check ang polarity sa post bago i-plug ang box.',
+    ],
+    features: 'Nagbabago ang readings depende sa shade at layo sa plant, kaya ilagay ang new post like the existing ones.',
+    note: 'Huwag magdala ng 220 V sa plot. Ang power box lang ang nagco-convert ng 220 V to 12 V.',
+  },
+};
+
+const HW_CONNECT = {
+  id: 'hw-connect',
+  tab: 'boxes',
+  shots: ['ad-03-boxes'],
+  en: {
+    title: 'Hardware: connecting a new box to the system', screen: 'Sensor Boxes',
+    purpose: 'Get a new sensor box to sign on, receive its node number and appear in every role\'s view.',
+    steps: [
+      'Farm Owner: add the node first with Expand coverage, so a free node is waiting for the box.',
+      'Flash the field-node firmware to the ESP32 with the Arduino IDE, with the farm Wi-Fi name and password in config.h and NODE_ID left at 0 (automatic).',
+      'Power the box from its fused 12 V run. It joins the farm Wi-Fi of the Globe router and looks for the server (jpcf.local).',
+      'The server gives the board the lowest free node and its own key. The board blinks its node number slowly once it has signed on.',
+      'System Admin: open Sensor Boxes and check that the board ID now shows under Registered boxes with the right node and a recent Last seen.',
+      'Check the node on the Overview: it turns from offline to live within a few seconds of its first reading.',
+    ],
+    features: 'A board is accepted only while a node is free, and every registration is written to the Audit Log.',
+    note: 'If the board never blinks its number, check the 5 V supply, the Wi-Fi name and password in the firmware, and that a free node exists.',
+  },
+  tl: {
+    title: 'Hardware: pagkonekta ng bagong box sa system', screen: 'Sensor Boxes',
+    purpose: 'Para makapag-sign on ang bagong sensor box, makatanggap ng number ng node at lumabas sa view ng bawat role.',
+    steps: [
+      'Farm Owner: idagdag muna ang node gamit ang Expand coverage, para may bakanteng node na naghihintay sa box.',
+      'I-flash ang field-node firmware sa ESP32 gamit ang Arduino IDE, nakalagay ang pangalan at password ng Wi-Fi ng farm sa config.h at 0 (automatic) ang NODE_ID.',
+      'Paandarin ang box mula sa 12 V na linya nitong may fuse. Kokonekta ito sa Wi-Fi ng Globe router at hahanapin ang server (jpcf.local).',
+      'Ibibigay ng server sa board ang pinakamababang bakanteng node at sariling key. Dahan-dahang kikislap ng number ng node ang board kapag naka-sign on na.',
+      'System Admin: buksan ang Sensor Boxes at tingnan kung nasa Registered boxes na ang board ID, tama ang node at bago ang Last seen.',
+      'Tingnan ang node sa Overview: magiging live ito ilang segundo matapos ang unang reading.',
+    ],
+    features: 'Tumatanggap lang ng board kapag may bakanteng node, at naitatala sa Audit Log ang bawat pag-register.',
+    note: 'Kung hindi kumikislap ang number, tingnan ang 5 V, ang pangalan at password ng Wi-Fi sa firmware, at kung may bakanteng node.',
+  },
+  taglish: {
+    title: 'Hardware: pag-connect ng new box sa system', screen: 'Sensor Boxes',
+    purpose: 'Para mag-sign on ang new sensor box, makakuha ng node number at lumabas sa view ng bawat role.',
+    steps: [
+      'Farm Owner: i-add muna ang node gamit ang Expand coverage, para may free node na naghihintay sa box.',
+      'I-flash ang field-node firmware sa ESP32 gamit ang Arduino IDE, nakalagay ang farm Wi-Fi name at password sa config.h at 0 (automatic) ang NODE_ID.',
+      'I-power ang box mula sa fused 12 V run nito. Magco-connect ito sa farm Wi-Fi ng Globe router at hahanapin ang server (jpcf.local).',
+      'Ibibigay ng server sa board ang lowest free node at sariling key. Dahan-dahang magbli-blink ng node number ang board kapag naka-sign on na.',
+      'System Admin: i-open ang Sensor Boxes at i-check kung nasa Registered boxes na ang board ID, tama ang node at recent ang Last seen.',
+      'I-check ang node sa Overview: magiging live ito ilang seconds after ng first reading.',
+    ],
+    features: 'Tumatanggap lang ng board kapag may free node, at naka-record sa Audit Log ang bawat registration.',
+    note: 'Kung hindi nagbli-blink ang number, i-check ang 5 V, ang Wi-Fi name at password sa firmware, at kung may free node.',
+  },
+};
+
 // ------------------------------------------------------------ per role
 export const ROLE_SECTIONS = {
   agronomist: [
@@ -656,6 +810,9 @@ export const ROLE_SECTIONS = {
         features: 'Farm Owner lang ang pwedeng mag-add ng nodes.',
       },
     },
+    HW_BOX,
+    HW_POST,
+    HW_CONNECT,
     {
       ...ALERTS_READ,
       en: { ...ALERTS_READ.en, note: 'Read-only for the Farm Owner. Recent field actions on the Overview show what the staff recorded.' },
@@ -885,6 +1042,9 @@ export const ROLE_SECTIONS = {
         note: 'Pwedeng ma-disconnect ang working box kapag ginamit ang Release o New key, hanggang mag-sign on ulit.',
       },
     },
+    HW_BOX,
+    HW_POST,
+    HW_CONNECT,
     {
       id: 'audit',
       tab: 'audit',
